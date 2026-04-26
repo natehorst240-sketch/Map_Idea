@@ -9,7 +9,7 @@
 export const config = {
   // Free tier token. Without a token, Cesium falls back to a low-resolution
   // imagery layer and disables World Terrain.
-  cesiumIonToken: 'YOUR_CESIUM_ION_TOKEN_HERE',
+  cesiumIonToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJiYThkMDkzOC1kYjU4LTQ0ZmMtYmU0Ny1mZTY3YzllNjY4NTkiLCJpZCI6NDIzODcyLCJpYXQiOjE3NzcyMzI0Njh9.9joupijYceb10Cv37TbX7HioCcUV5eOgzh6cQUUIBXI',
 
   // Asset is rendered with reduced opacity if its timestamp is older than this.
   staleThresholdSeconds: 300,
