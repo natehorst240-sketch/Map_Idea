@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Asset Tracker — 3D Cesium Demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="stylesheet" href="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Widgets/widgets.css" />
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Cesium.js"></script>
+
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        background: #0a0a0a;
+        color: #eee;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      }
+      #app {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        grid-template-rows: 56px 1fr;
+        height: 100vh;
+      }
+      header {
+        grid-column: 1 / -1;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0 16px;
+        background: #181818;
+        border-bottom: 1px solid #2a2a2a;
+      }
+      header h1 {
+        font-size: 16px;
+        margin: 0;
+        font-weight: 600;
+      }
+      .source-badges {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .badge {
+        font-size: 11px;
+        padding: 4px 10px;
+        border: 1.5px solid #555;
+        border-radius: 12px;
+        background: transparent;
+        color: #ddd;
+        cursor: pointer;
+        font-family: inherit;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .badge.off {
+        opacity: 0.55;
+      }
+      aside {
+        background: #131313;
+        border-right: 1px solid #2a2a2a;
+        overflow-y: auto;
+      }
+      .sidebar-header {
+        padding: 12px 16px;
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        border-bottom: 1px solid #2a2a2a;
+      }
+      .sidebar-header h2 {
+        margin: 0;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #aaa;
+      }
+      .sidebar-count {
+        font-size: 12px;
+        color: #888;
+      }
+      .sidebar-toolbar {
+        padding: 10px 16px;
+        border-bottom: 1px solid #2a2a2a;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .asset-search {
+        background: #0c0c0c;
+        color: #ddd;
+        border: 1px solid #2a2a2a;
+        padding: 6px 8px;
+        font-family: inherit;
+        font-size: 12px;
+      }
+      .sidebar-export {
+        display: flex;
+        gap: 6px;
+      }
+      .export-btn {
+        font-size: 11px;
+        padding: 4px 10px;
+        border: 1px solid #444;
+        background: #1a1a1a;
+        color: #ddd;
+        cursor: pointer;
+        border-radius: 4px;
+        font-family: inherit;
+      }
+      .export-btn:hover {
+        background: #242424;
+      }
+      .asset-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .asset-row {
+        padding: 10px 16px;
+        border-bottom: 1px solid #1f1f1f;
+        cursor: pointer;
+      }
+      .asset-row:hover {
+        background: #1c1c1c;
+      }
+      .asset-label {
+        font-weight: 600;
+      }
+      .asset-meta {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+        color: #888;
+        margin-top: 2px;
+      }
+      .asset-source {
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      #cesiumContainer {
+        position: relative;
+      }
+      #cesiumContainer .cesium-viewer {
+        height: 100%;
+      }
+      .header-controls {
+        margin-left: auto;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .toggle-btn {
+        font-size: 11px;
+        padding: 4px 10px;
+        border: 1px solid #555;
+        border-radius: 4px;
+        background: transparent;
+        color: #ddd;
+        cursor: pointer;
+        font-family: inherit;
+      }
+      .toggle-btn.on {
+        background: #2c4a7a;
+        border-color: #4a7ab0;
+        color: #fff;
+      }
+      .nmea-panel {
+        border-top: 1px solid #2a2a2a;
+        padding: 12px 16px;
+      }
+      .nmea-panel h3 {
+        margin: 0 0 6px;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #aaa;
+      }
+      .nmea-panel textarea {
+        width: 100%;
+        min-height: 80px;
+        background: #0c0c0c;
+        color: #ddd;
+        border: 1px solid #2a2a2a;
+        font-family: ui-monospace, Menlo, Consolas, monospace;
+        font-size: 11px;
+        padding: 6px;
+        resize: vertical;
+        box-sizing: border-box;
+      }
+      .nmea-panel .nmea-status {
+        font-size: 11px;
+        color: #888;
+        margin-top: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <header>
+        <h1>Asset Tracker — 3D Cesium</h1>
+        <div id="badges"></div>
+        <div class="header-controls">
+          <button id="trailsToggle" class="toggle-btn on" type="button">Trails</button>
+          <button id="terrainToggle" class="toggle-btn" type="button">Terrain-clamp ground</button>
+        </div>
+      </header>
+      <aside id="sidebar">
+        <div id="sidebarMain"></div>
+        <div class="nmea-panel">
+          <h3>NMEA paste — live parse</h3>
+          <textarea id="nmeaInput" placeholder="$GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47&#10;$GPRMC,123519,A,4807.038,N,01131.000,E,022.4,084.4,230394,003.1,W*6A"></textarea>
+          <div class="nmea-status" id="nmeaStatus">Paste GGA + RMC sentences to add a live asset.</div>
+        </div>
+      </aside>
+      <div id="cesiumContainer"></div>
+    </div>
+
+    <script type="module">
+      import { config } from './config.js';
+      import { buildRegistry } from './src/registry.js';
+      import { adsbAdapter } from './src/adapters/adsb.js';
+      import { trootraxAdapter } from './src/adapters/trootrax.js';
+      import { customAdapter } from './src/adapters/custom.js';
+      import { nmeaAdapter } from './src/adapters/nmea.js';
+      import { traccarAdapter } from './src/adapters/traccar.js';
+      import { aprsAdapter } from './src/adapters/aprs.js';
+      import { samsaraAdapter } from './src/adapters/samsara.js';
+      import { createMap } from './src/map/cesium-map.js';
+      import { EntityStore } from './src/map/cesium-entities.js';
+      import { CameraController } from './src/map/cesium-camera.js';
+      import { Sidebar } from './src/ui/sidebar.js';
+      import { SourceBadges } from './src/ui/badges.js';
+      import { toGeoJSON, toCSV, downloadBlob } from './src/ui/export.js';
+
+      const registry = buildRegistry({
+        adapters: [
+          adsbAdapter,
+          trootraxAdapter,
+          traccarAdapter,
+          aprsAdapter,
+          samsaraAdapter,
+          nmeaAdapter,
+          customAdapter,
+        ],
+        colors: config.sourceColors,
+      });
+
+      const viewer = createMap('cesiumContainer');
+      const store = new EntityStore(viewer, registry);
+      const camera = new CameraController(viewer, store);
+      const sidebar = new Sidebar(document.getElementById('sidebarMain'), {
+        onSelect: (id) => camera.selectAsset(id),
+        onExport: (format, positions) => {
+          if (format === 'geojson') {
+            downloadBlob(JSON.stringify(toGeoJSON(positions), null, 2), 'assets.geojson', 'application/geo+json');
+          } else {
+            downloadBlob(toCSV(positions), 'assets.csv', 'text/csv');
+          }
+        },
+      });
+      const badges = new SourceBadges(document.getElementById('badges'), registry, {
+        onToggle: (source, visible) => store.setSourceVisible(source, visible),
+      });
+
+      // Seed demo data — the four existing adapters, exercised end-to-end.
+      // TrooTrax helicopters at realistic Wasatch Range altitudes (~4,750–5,320 ft MSL).
+      const seedTrootrax = {
+        feed: 'trootrax',
+        assets: [
+          { tailNumber: 'N251HC', latitude: 40.6125, longitude: -111.5582, altitudeFeet: 4750, headingDeg: 305, groundSpeedKts: 95,  lastReportUtc: nowIso() },
+          { tailNumber: 'N512HC', latitude: 40.5588, longitude: -111.6442, altitudeFeet: 5180, headingDeg: 92,  groundSpeedKts: 110, lastReportUtc: nowIso() },
+          { tailNumber: 'N731HC', latitude: 40.7115, longitude: -111.9322, altitudeFeet: 5320, headingDeg: 187, groundSpeedKts: 120, lastReportUtc: nowIso() },
+        ],
+      };
+
+      const seedAdsb = {
+        now: Date.now() / 1000,
+        messages: 1,
+        aircraft: [
+          { hex: 'a1b2c3', flight: 'DAL123  ', lat: 40.7126, lon: -111.9342, alt_baro: 35000, alt_geom: 35150, gs: 420, track: 273, seen_pos: 0.4, seen: 0.1 },
+          { hex: 'a99001', flight: 'SWA422  ', lat: 40.45, lon: -112.05, alt_baro: 28000, alt_geom: 28080, gs: 380, track: 95, seen_pos: 0.2, seen: 0.1 },
+        ],
+      };
+
+      const seedCustom = {
+        source: 'custom',
+        points: [
+          { id: 'GROUND-1', name: 'Recovery Truck', lat: 40.65, lon: -111.7, alt: 4800, hdg: 45, spd: 35, ts: Date.now() / 1000 },
+        ],
+      };
+
+      // Seed Traccar — two ground vehicles via REST positions array.
+      const seedTraccar = [
+        { deviceId: 12, deviceName: 'Truck 12', latitude: 40.62, longitude: -111.8, altitude: 1480, speed: 28, course: 90,  fixTime: nowIso(), valid: true, attributes: { ignition: true, battery: 87 } },
+        { deviceId: 13, deviceName: 'Sedan 13', latitude: 40.59, longitude: -111.78, altitude: 1455, speed: 0,  course: 0,   fixTime: nowIso(), valid: true, attributes: { ignition: false, battery: 92 } },
+      ];
+
+      // Seed APRS — one mobile ham asset via aprs.fi REST shape.
+      const seedAprs = {
+        result: 'ok',
+        entries: [
+          { name: 'K7XYZ-9', srccall: 'K7XYZ', lat: '40.64', lng: '-111.78', course: 270, speed: 65, altitude: 1450, time: Date.now() / 1000, lasttime: Date.now() / 1000, symbol: '/>' },
+        ],
+      };
+
+      // Seed Samsara — fleet vehicle via snapshot envelope.
+      const seedSamsara = {
+        data: [
+          { id: '281474976737697', name: 'F-150 — Truck 7', vin: '1FTFW1ET5DFC10312', make: 'Ford', model: 'F-150', tags: [],
+            location: { latitude: 40.6, longitude: -111.85, headingDegrees: 87, speedMilesPerHour: 41.5, time: nowIso() } },
+        ],
+        pagination: { endCursor: 'demo', hasNextPage: false },
+      };
+
+      const all = [
+        ...registry.parse(seedTrootrax),
+        ...registry.parse(seedAdsb),
+        ...registry.parse(seedCustom),
+        ...registry.parse(seedTraccar),
+        ...registry.parse(seedAprs),
+        ...registry.parse(seedSamsara),
+      ];
+
+      store.updateMapPositions(all);
+      sidebar.render(store.all());
+      badges.render(store.countBySource());
+
+      // Click on a Cesium entity → highlight in sidebar.
+      viewer.selectedEntityChanged.addEventListener((entity) => {
+        if (!entity) return;
+        const id = entity.id?.replace(/^asset-/, '');
+        if (!id) return;
+        document.querySelectorAll('.asset-row').forEach((row) => {
+          row.classList.toggle('selected', row.dataset.id === id);
+        });
+      });
+
+      // Trails toggle.
+      const trailsBtn = document.getElementById('trailsToggle');
+      trailsBtn.addEventListener('click', () => {
+        const on = trailsBtn.classList.toggle('on');
+        store.setTrailsVisible(on);
+      });
+
+      // Terrain-clamp ground sources toggle (traccar / samsara / custom).
+      const terrainBtn = document.getElementById('terrainToggle');
+      // Reflect the default state — these sources clamp by default.
+      terrainBtn.classList.add('on');
+      terrainBtn.addEventListener('click', () => {
+        const on = terrainBtn.classList.toggle('on');
+        for (const source of ['traccar', 'samsara', 'custom']) {
+          store.setTerrainFollow(source, on);
+        }
+      });
+
+      // Live polling demo — re-fetch a synthetic ADS-B "feed" every 5s and
+      // jitter positions slightly so the trail history is visible.
+      registry.poll(
+        () => ({
+          now: Date.now() / 1000,
+          messages: 1,
+          aircraft: [
+            {
+              hex: 'a1b2c3',
+              flight: 'DAL123  ',
+              lat: 40.7126 + (Math.random() - 0.5) * 0.01,
+              lon: -111.9342 + (Math.random() - 0.5) * 0.01,
+              alt_baro: 35000,
+              alt_geom: 35150,
+              gs: 420,
+              track: 273,
+              seen_pos: 0.4,
+              seen: 0.1,
+            },
+          ],
+        }),
+        5000,
+        (positions) => {
+          store.updateMapPositions(positions);
+          sidebar.render(store.all());
+          badges.render(store.countBySource());
+        },
+      );
+
+      // NMEA paste panel — re-parse on every keystroke.
+      const nmeaInput = document.getElementById('nmeaInput');
+      const nmeaStatus = document.getElementById('nmeaStatus');
+      nmeaInput.addEventListener('input', () => {
+        nmeaAdapter.reset();
+        const positions = registry.parse({
+          source: 'nmea',
+          deviceId: 'paste-demo',
+          sentences: nmeaInput.value,
+        });
+        if (positions.length === 0) {
+          nmeaStatus.textContent = 'Waiting for a complete GGA + RMC pair…';
+          return;
+        }
+        store.updateMapPositions(positions);
+        sidebar.render(store.all());
+        badges.render(store.countBySource());
+        const last = positions[positions.length - 1];
+        nmeaStatus.textContent = `Live: ${last.lat.toFixed(4)}, ${last.lon.toFixed(4)}${last.altitude !== null ? ` @ ${Math.round(last.altitude)} ft` : ''}.`;
+      });
+
+      function nowIso() {
+        return new Date().toISOString();
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,37 @@
+{
+  "command": "get",
+  "result": "ok",
+  "what": "loc",
+  "found": 2,
+  "entries": [
+    {
+      "name": "K7XYZ-9",
+      "srccall": "K7XYZ",
+      "type": "a",
+      "time": "1714158000",
+      "lasttime": "1714158020",
+      "lat": "40.6125",
+      "lng": "-111.5582",
+      "course": 270,
+      "speed": 65,
+      "altitude": 1450,
+      "symbol": "/>",
+      "comment": "Mobile in UT",
+      "path": "WIDE1-1,WIDE2-1"
+    },
+    {
+      "name": "WB7DEF",
+      "srccall": "WB7DEF",
+      "type": "a",
+      "time": "1714158005",
+      "lasttime": "1714158015",
+      "lat": "40.7115",
+      "lng": "-111.9322",
+      "course": "180",
+      "speed": "0",
+      "altitude": "1380",
+      "symbol": "/k",
+      "path": "WIDE2-2"
+    }
+  ]
+}

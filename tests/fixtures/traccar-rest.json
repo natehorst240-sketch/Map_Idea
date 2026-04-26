@@ -1,0 +1,49 @@
+[
+  {
+    "id": 8001,
+    "deviceId": 12,
+    "deviceName": "Truck 12",
+    "protocol": "teltonika",
+    "fixTime": "2026-04-26T17:12:30.000+00:00",
+    "latitude": 40.6125,
+    "longitude": -111.5582,
+    "altitude": 1448,
+    "speed": 35.0,
+    "course": 87,
+    "valid": true,
+    "attributes": {
+      "ignition": true,
+      "battery": 87,
+      "odometer": 142500,
+      "rssi": 4
+    }
+  },
+  {
+    "id": 8002,
+    "deviceId": 13,
+    "deviceName": "Sedan 13",
+    "protocol": "osmand",
+    "fixTime": "2026-04-26T17:12:31.000+00:00",
+    "latitude": 40.5588,
+    "longitude": -111.6442,
+    "altitude": 1580,
+    "speed": 0,
+    "course": 0,
+    "valid": true,
+    "attributes": { "ignition": false, "battery": 92 }
+  },
+  {
+    "id": 8003,
+    "deviceId": 14,
+    "deviceName": "GT06 Bike",
+    "protocol": "gt06",
+    "fixTime": "2026-04-26T17:12:35.000+00:00",
+    "latitude": 0,
+    "longitude": 0,
+    "altitude": 0,
+    "speed": 0,
+    "course": 0,
+    "valid": false,
+    "attributes": {}
+  }
+]

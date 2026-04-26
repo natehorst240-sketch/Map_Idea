@@ -1,0 +1,38 @@
+{
+  "feed": "trootrax",
+  "assets": [
+    {
+      "tailNumber": "N251HC",
+      "operator": "Wasatch Helicopters",
+      "aircraftType": "AS350",
+      "latitude": 40.6125,
+      "longitude": -111.5582,
+      "altitudeFeet": 4750,
+      "headingDeg": 305,
+      "groundSpeedKts": 95,
+      "lastReportUtc": "2026-04-26T17:12:30Z"
+    },
+    {
+      "tailNumber": "N512HC",
+      "operator": "Wasatch Helicopters",
+      "aircraftType": "B407",
+      "latitude": 40.5588,
+      "longitude": -111.6442,
+      "altitudeFeet": 5180,
+      "headingDeg": 92,
+      "groundSpeedKts": 110,
+      "lastReportUtc": "2026-04-26T17:12:34Z"
+    },
+    {
+      "tailNumber": "N731HC",
+      "operator": "Wasatch Helicopters",
+      "aircraftType": "BELL412",
+      "latitude": 40.7115,
+      "longitude": -111.9322,
+      "altitudeFeet": 5320,
+      "headingDeg": 187,
+      "groundSpeedKts": 120,
+      "lastReportUtc": "2026-04-26T17:12:38Z"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "now": 1714158000.0,
+  "messages": 8421057,
+  "aircraft": [
+    {
+      "hex": "a1b2c3",
+      "flight": "DAL123  ",
+      "lat": 40.7126,
+      "lon": -111.9342,
+      "alt_baro": 35000,
+      "alt_geom": 35150,
+      "gs": 420,
+      "track": 273,
+      "squawk": "1200",
+      "category": "A3",
+      "seen_pos": 0.4,
+      "seen": 0.1
+    },
+    {
+      "hex": "ad88e2",
+      "flight": "N251HC  ",
+      "lat": 40.6125,
+      "lon": -111.5582,
+      "alt_baro": 4750,
+      "alt_geom": 4810,
+      "gs": 95,
+      "track": 305,
+      "category": "A1",
+      "seen_pos": 1.1,
+      "seen": 0.2
+    },
+    {
+      "hex": "abc111",
+      "alt_baro": 0,
+      "seen": 0.3
+    }
+  ]
+}
