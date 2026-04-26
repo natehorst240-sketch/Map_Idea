@@ -8,6 +8,15 @@ export class CameraController {
   constructor(viewer, store) {
     this.viewer = viewer;
     this.store = store;
+    this.followingId = null;
+    this._installEscapeHandler();
+  }
+
+  _installEscapeHandler() {
+    if (typeof window === 'undefined') return;
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && this.followingId) this.unfollow();
+    });
   }
 
   panTo(lat, lon, altitudeFt) {
@@ -32,10 +41,20 @@ export class CameraController {
     const entity = this.store.byId.get(id);
     if (!entity) return false;
     this.viewer.trackedEntity = entity;
+    this.followingId = id;
     return true;
   }
 
   unfollow() {
     this.viewer.trackedEntity = undefined;
+    this.followingId = null;
+  }
+
+  toggleFollow(id) {
+    if (this.followingId === id) {
+      this.unfollow();
+      return false;
+    }
+    return this.follow(id);
   }
 }

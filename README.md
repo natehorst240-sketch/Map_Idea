@@ -67,9 +67,14 @@ add a new source.
 | Traccar    | `src/adapters/traccar.js`     | REST `/api/positions` + WebSocket           |
 | APRS       | `src/adapters/aprs.js`        | aprs.fi REST + raw APRS-IS uncompressed pos |
 | Samsara    | `src/adapters/samsara.js`     | Fleet snapshot + cursor-based live feed     |
+| AIS        | `src/adapters/ais.js`         | AIVDM/AIVDO Type 1/2/3 + Type 18 (Class B)  |
+| inReach    | `src/adapters/inreach.js`     | Garmin IPC Outbound (enterprise)            |
 | Custom     | `src/adapters/custom.js`      | Hand-authored / one-off feeds               |
 
-Future sprints add AIS, Garmin inReach, MQTT, and GeoJSON.
+Future sprints add MQTT and GeoJSON.
+
+> inReach IPC Outbound requires an enterprise Garmin Explore /
+> inReach Pro subscription — no free public test endpoint.
 
 ## Polling and live feeds
 
@@ -97,8 +102,13 @@ Future sprints add AIS, Garmin inReach, MQTT, and GeoJSON.
 - Sidebar export — download all current positions as GeoJSON or CSV.
 - Sidebar NMEA paste panel — parse and render raw $GPGGA + $GPRMC
   sentences live, useful for testing the NMEA adapter without hardware.
-- Camera flyTo on row click; track-mode follow available via the
-  `CameraController.follow(id)` API.
+- Camera flyTo on row click; **Follow selected** header button locks the
+  camera onto the selected entity. Press Escape to release.
+- Optional 3D models for aviation sources — set `aviationModelUrl` in
+  `config.js` to a `.glb` / `.gltf` URL and matching aircraft will render
+  as a heading-oriented model instead of a point billboard.
+- **Sun lighting** toggle — Cesium's day/night terminator with
+  atmospheric scattering. Off by default.
 
 ## Schema
 

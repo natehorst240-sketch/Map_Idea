@@ -205,6 +205,8 @@
         <div class="header-controls">
           <button id="trailsToggle" class="toggle-btn on" type="button">Trails</button>
           <button id="terrainToggle" class="toggle-btn" type="button">Terrain-clamp ground</button>
+          <button id="lightingToggle" class="toggle-btn" type="button">Sun lighting</button>
+          <button id="followToggle" class="toggle-btn" type="button">Follow selected</button>
         </div>
       </header>
       <aside id="sidebar">
@@ -228,7 +230,9 @@
       import { traccarAdapter } from './src/adapters/traccar.js';
       import { aprsAdapter } from './src/adapters/aprs.js';
       import { samsaraAdapter } from './src/adapters/samsara.js';
-      import { createMap } from './src/map/cesium-map.js';
+      import { aisAdapter } from './src/adapters/ais.js';
+      import { inreachAdapter } from './src/adapters/inreach.js';
+      import { createMap, setSunLighting } from './src/map/cesium-map.js';
       import { EntityStore } from './src/map/cesium-entities.js';
       import { CameraController } from './src/map/cesium-camera.js';
       import { Sidebar } from './src/ui/sidebar.js';
@@ -242,7 +246,9 @@
           traccarAdapter,
           aprsAdapter,
           samsaraAdapter,
+          inreachAdapter,
           nmeaAdapter,
+          aisAdapter,
           customAdapter,
         ],
         colors: config.sourceColors,
@@ -315,6 +321,22 @@
         pagination: { endCursor: 'demo', hasNextPage: false },
       };
 
+      // Seed inReach — IPC Outbound envelope, two field operatives.
+      const seedInreach = {
+        Version: '2.0',
+        Events: [
+          { imei: '300434061234567', messageCode: 0, timeStamp: Date.now(),
+            point: { latitude: 40.66, longitude: -111.6, altitude: 2050, speed: 12, course: 270 } },
+          { imei: '300434061234568', messageCode: 1, timeStamp: Date.now(),
+            point: { latitude: 40.55, longitude: -111.95, altitude: 1980, speed: 0, course: 0 } },
+        ],
+      };
+
+      // Seed AIS — gpsd reference Type 1 (MMSI 477553000 near Seattle).
+      const seedAis =
+        '!AIVDM,1,1,,B,177KQJ5000G?tO`K>RA1wUbN0TKH,0*5C\n' +
+        '!AIVDM,1,1,,A,B6CdCm0t3`tba35f@V9faHi7kP06,0*58';
+
       const all = [
         ...registry.parse(seedTrootrax),
         ...registry.parse(seedAdsb),
@@ -322,6 +344,8 @@
         ...registry.parse(seedTraccar),
         ...registry.parse(seedAprs),
         ...registry.parse(seedSamsara),
+        ...registry.parse(seedInreach),
+        ...registry.parse(seedAis),
       ];
 
       store.updateMapPositions(all);
@@ -354,6 +378,32 @@
         for (const source of ['traccar', 'samsara', 'custom']) {
           store.setTerrainFollow(source, on);
         }
+      });
+
+      // Sun lighting + atmosphere toggle.
+      const lightingBtn = document.getElementById('lightingToggle');
+      if (config.enableSunLighting) lightingBtn.classList.add('on');
+      lightingBtn.addEventListener('click', () => {
+        const on = lightingBtn.classList.toggle('on');
+        setSunLighting(viewer, on);
+      });
+
+      // Follow toggle — locks camera onto the currently-selected entity.
+      // Press Escape (or click again) to release.
+      const followBtn = document.getElementById('followToggle');
+      followBtn.addEventListener('click', () => {
+        const sel = viewer.selectedEntity;
+        if (!sel) {
+          followBtn.classList.remove('on');
+          return;
+        }
+        const id = sel.id?.replace(/^asset-/, '');
+        if (!id) return;
+        const isFollowing = camera.toggleFollow(id);
+        followBtn.classList.toggle('on', isFollowing);
+      });
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') followBtn.classList.remove('on');
       });
 
       // Live polling demo — re-fetch a synthetic ADS-B "feed" every 5s and

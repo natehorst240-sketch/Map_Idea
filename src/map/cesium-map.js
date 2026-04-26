@@ -31,11 +31,16 @@ export function createMap(containerId) {
     selectionIndicator: true,
   });
 
-  viewer.scene.globe.enableLighting = false;
+  viewer.scene.globe.enableLighting = !!config.enableSunLighting;
   viewer.scene.skyAtmosphere.show = true;
 
   flyToInitial(viewer);
   return viewer;
+}
+
+// Toggle sun-position-based lighting at runtime. The sky atmosphere stays on.
+export function setSunLighting(viewer, enabled) {
+  viewer.scene.globe.enableLighting = !!enabled;
 }
 
 function flyToInitial(viewer) {

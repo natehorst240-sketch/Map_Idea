@@ -1,0 +1,58 @@
+{
+  "Version": "2.0",
+  "Events": [
+    {
+      "imei": "300434061234567",
+      "messageCode": 0,
+      "freeText": "OK",
+      "timeStamp": 1714158000000,
+      "point": {
+        "latitude": 40.6125,
+        "longitude": -111.5582,
+        "altitude": 2050,
+        "speed": 12.5,
+        "course": 270
+      },
+      "addresses": [{ "address": "ops@example.com" }]
+    },
+    {
+      "imei": "300434061234568",
+      "messageCode": 1,
+      "freeText": "Tracking ON",
+      "timeStamp": 1714158005000,
+      "point": {
+        "latitude": 40.5588,
+        "longitude": -111.6442,
+        "altitude": 1980,
+        "speed": 0,
+        "course": 0
+      }
+    },
+    {
+      "imei": "300434061234569",
+      "messageCode": 10,
+      "freeText": "Hello from the field",
+      "timeStamp": 1714158010000,
+      "point": {
+        "latitude": 40.7115,
+        "longitude": -111.9322,
+        "altitude": 1800,
+        "speed": 0,
+        "course": 0
+      }
+    },
+    {
+      "imei": "300434061234570",
+      "messageCode": 64,
+      "freeText": "SOS",
+      "timeStamp": 1714158015000,
+      "point": {
+        "latitude": 40.7,
+        "longitude": -111.9,
+        "altitude": 1750,
+        "speed": 0,
+        "course": 0
+      }
+    }
+  ]
+}

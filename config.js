@@ -35,4 +35,15 @@ export const config = {
     latitude: 40.55,
     height: 80000,
   },
+
+  // Optional 3D models. If set, aviation sources render as a glTF model
+  // oriented by heading; otherwise the default point billboard is used.
+  // Drop a .glb (or .gltf) into a public path and reference it here.
+  // E.g. `./assets/models/helicopter.glb`. Set to null to disable.
+  aviationModelUrl: null,
+  groundModelUrl: null,
+  aviationSources: ['adsb', 'trootrax', 'nmea'],
+
+  // Sun lighting + atmospheric scattering. Visible at globe scale.
+  enableSunLighting: false,
 };
