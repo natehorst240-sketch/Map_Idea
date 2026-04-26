@@ -1,0 +1,33 @@
+{
+  "type": "FeatureCollection",
+  "name": "Trail markers — exported from Gaia GPS",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "wp-1",
+      "geometry": { "type": "Point", "coordinates": [-111.5582, 40.6125, 1448] },
+      "properties": {
+        "name": "Park Junction",
+        "time": "2026-04-26T17:12:30Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [-111.6442, 40.5588] },
+      "properties": {
+        "name": "Trailhead",
+        "elevation": 1580,
+        "course": 92,
+        "speed": 0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [[-111.5, 40.5], [-111.4, 40.6]]
+      },
+      "properties": { "name": "Skip me — non-Point" }
+    }
+  ]
+}

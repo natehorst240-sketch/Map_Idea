@@ -3,7 +3,15 @@
   "version": "0.1.0",
   "description": "Plug-and-play asset tracking adapter library + 3D CesiumJS map.",
   "type": "module",
-  "main": "src/registry.js",
+  "main": "src/index.js",
+  "module": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./registry": "./src/registry.js",
+    "./adapters/*": "./src/adapters/*.js",
+    "./map/*": "./src/map/*.js",
+    "./ui/*": "./src/ui/*.js"
+  },
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "lint": "eslint \"src/**/*.js\" \"tests/**/*.js\"",
@@ -15,9 +23,22 @@
     "cesium",
     "gps",
     "ads-b",
+    "ais",
+    "aivdm",
+    "nmea",
+    "aprs",
+    "traccar",
+    "samsara",
+    "inreach",
+    "mqtt",
+    "geojson",
     "adapter"
   ],
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/natehorst240-sketch/Map_Idea"
+  },
   "devDependencies": {
     "eslint": "^9.0.0",
     "globals": "^15.0.0",
@@ -30,7 +51,10 @@
   },
   "files": [
     "src",
+    "config.js",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE"
-  ]
+  ],
+  "sideEffects": false
 }

@@ -1,0 +1,45 @@
+{
+  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.16/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.16",
+  "version": "0.1.0",
+  "id": "REPLACE-WITH-NEW-GUID",
+  "packageName": "com.example.assetTracker",
+  "developer": {
+    "name": "Your Org",
+    "websiteUrl": "https://example.com",
+    "privacyUrl": "https://example.com/privacy",
+    "termsOfUseUrl": "https://example.com/terms"
+  },
+  "name": {
+    "short": "Asset Tracker",
+    "full": "Asset Tracker — 3D Cesium Map"
+  },
+  "description": {
+    "short": "Live asset tracking on a 3D Cesium globe.",
+    "full": "Plug-and-play asset tracking adapters (ADS-B, TrooTrax, NMEA, Traccar, APRS, Samsara, AIS, inReach, MQTT, GeoJSON) rendered on a CesiumJS terrain globe."
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "accentColor": "#1f77b4",
+  "staticTabs": [
+    {
+      "entityId": "asset-tracker-map",
+      "name": "Map",
+      "contentUrl": "https://REPLACE-WITH-YOUR-HOST/index.html",
+      "websiteUrl": "https://REPLACE-WITH-YOUR-HOST/index.html",
+      "scopes": ["personal"]
+    }
+  ],
+  "configurableTabs": [
+    {
+      "configurationUrl": "https://REPLACE-WITH-YOUR-HOST/index.html",
+      "canUpdateConfiguration": false,
+      "scopes": ["team", "groupchat"],
+      "context": ["channelTab", "privateChatTab"]
+    }
+  ],
+  "permissions": ["identity"],
+  "validDomains": ["REPLACE-WITH-YOUR-HOST"]
+}

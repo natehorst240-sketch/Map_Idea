@@ -232,12 +232,32 @@
       import { samsaraAdapter } from './src/adapters/samsara.js';
       import { aisAdapter } from './src/adapters/ais.js';
       import { inreachAdapter } from './src/adapters/inreach.js';
+      import { makeMqttAdapter } from './src/adapters/mqtt.js';
+      import { geojsonAdapter } from './src/adapters/geojson.js';
       import { createMap, setSunLighting } from './src/map/cesium-map.js';
       import { EntityStore } from './src/map/cesium-entities.js';
       import { CameraController } from './src/map/cesium-camera.js';
       import { Sidebar } from './src/ui/sidebar.js';
       import { SourceBadges } from './src/ui/badges.js';
       import { toGeoJSON, toCSV, downloadBlob } from './src/ui/export.js';
+
+      // Demo MQTT adapter — covers a generic IoT device shape.
+      // canParse always returns false, so payloads must be routed by calling
+      // mqttDemoAdapter.normalize() directly (or registry.parse() will skip it).
+      const mqttDemoAdapter = makeMqttAdapter({
+        idField: 'device_id',
+        latField: 'gps.lat',
+        lonField: 'gps.lon',
+        altitudeField: 'gps.alt_m',
+        headingField: 'course',
+        speedField: 'speed_mph',
+        timestampField: 'ts_ms',
+        altitudeUnit: 'meters',
+        speedUnit: 'mph',
+        timestampUnit: 'milliseconds',
+        name: 'mqtt',
+        labelField: 'name',
+      });
 
       const registry = buildRegistry({
         adapters: [
@@ -249,6 +269,8 @@
           inreachAdapter,
           nmeaAdapter,
           aisAdapter,
+          geojsonAdapter,
+          mqttDemoAdapter,
           customAdapter,
         ],
         colors: config.sourceColors,
@@ -337,6 +359,30 @@
         '!AIVDM,1,1,,B,177KQJ5000G?tO`K>RA1wUbN0TKH,0*5C\n' +
         '!AIVDM,1,1,,A,B6CdCm0t3`tba35f@V9faHi7kP06,0*58';
 
+      // Seed MQTT — generic IoT device payload routed via the explicit
+      // mqttDemoAdapter (canParse is always false on MQTT adapters).
+      const mqttPositions = mqttDemoAdapter.normalize({
+        device_id: 'iot-pod-9',
+        name: 'IoT Pod 9',
+        gps: { lat: 40.58, lon: -111.72, alt_m: 1500 },
+        course: 135,
+        speed_mph: 18,
+        ts_ms: Date.now(),
+      });
+
+      // Seed GeoJSON — third-party-style FeatureCollection (Gaia/Garmin shape).
+      const seedGeoJson = {
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            id: 'wp-park',
+            geometry: { type: 'Point', coordinates: [-111.61, 40.5, 1500] },
+            properties: { name: 'Field HQ', time: nowIso() },
+          },
+        ],
+      };
+
       const all = [
         ...registry.parse(seedTrootrax),
         ...registry.parse(seedAdsb),
@@ -346,6 +392,8 @@
         ...registry.parse(seedSamsara),
         ...registry.parse(seedInreach),
         ...registry.parse(seedAis),
+        ...registry.parse(seedGeoJson),
+        ...mqttPositions,
       ];
 
       store.updateMapPositions(all);
