@@ -11,8 +11,9 @@ const TRAIL_LENGTH = 10;
 const ALT_CALLOUT_HEIGHT_M = 500_000;
 
 // Sources whose markers default to clamping on the terrain surface (ground
-// vehicles). Aviation sources stay at MSL altitude.
-const DEFAULT_TERRAIN_FOLLOW = new Set(['traccar', 'samsara', 'custom']);
+// vehicles + map-data sources that don't carry a real flying altitude).
+// Aviation sources stay at MSL altitude.
+const DEFAULT_TERRAIN_FOLLOW = new Set(['traccar', 'samsara', 'custom', 'mqtt', 'geojson', 'aprs']);
 
 function pickModelUrl(source) {
   if (Array.isArray(config.aviationSources) && config.aviationSources.includes(source)) {
@@ -115,6 +116,10 @@ export class EntityStore {
               outlineColor: Cesium.Color.WHITE,
               outlineWidth: 2,
               heightReference: heightRef,
+              // Always render the marker on top of terrain — without this,
+              // assets at altitudes below local terrain (or behind a mountain
+              // from the camera) get z-occluded and silently disappear.
+              disableDepthTestDistance: Number.POSITIVE_INFINITY,
             },
         model: modelUrl
           ? {
@@ -134,6 +139,7 @@ export class EntityStore {
           style: Cesium.LabelStyle.FILL_AND_OUTLINE,
           showBackground: true,
           backgroundColor: new Cesium.Color(0, 0, 0, 0.5),
+          disableDepthTestDistance: Number.POSITIVE_INFINITY,
         },
         polyline: undefined,
         description: buildDescription(p),

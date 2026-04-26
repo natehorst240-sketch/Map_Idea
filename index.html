@@ -331,12 +331,15 @@
 
       // Seed demo data — the four existing adapters, exercised end-to-end.
       // TrooTrax helicopters at realistic Wasatch Range altitudes (~4,750–5,320 ft MSL).
+      // Wasatch peaks reach ~11,750 ft (Mt Timpanogos). Helicopter cruise
+      // for backcountry / utility ops in this terrain is typically 9-13k ft
+      // MSL — high enough to clear ridgelines, low enough to be useful.
       const seedTrootrax = {
         feed: 'trootrax',
         assets: [
-          { tailNumber: 'N251HC', latitude: 40.6125, longitude: -111.5582, altitudeFeet: 4750, headingDeg: 305, groundSpeedKts: 95,  lastReportUtc: nowIso() },
-          { tailNumber: 'N512HC', latitude: 40.5588, longitude: -111.6442, altitudeFeet: 5180, headingDeg: 92,  groundSpeedKts: 110, lastReportUtc: nowIso() },
-          { tailNumber: 'N731HC', latitude: 40.7115, longitude: -111.9322, altitudeFeet: 5320, headingDeg: 187, groundSpeedKts: 120, lastReportUtc: nowIso() },
+          { tailNumber: 'N251HC', latitude: 40.6125, longitude: -111.5582, altitudeFeet: 12500, headingDeg: 305, groundSpeedKts: 95,  lastReportUtc: nowIso() },
+          { tailNumber: 'N512HC', latitude: 40.5588, longitude: -111.6442, altitudeFeet: 11800, headingDeg: 92,  groundSpeedKts: 110, lastReportUtc: nowIso() },
+          { tailNumber: 'N731HC', latitude: 40.7115, longitude: -111.9322, altitudeFeet: 9500,  headingDeg: 187, groundSpeedKts: 120, lastReportUtc: nowIso() },
         ],
       };
 
