@@ -1,0 +1,30 @@
+{
+  "flights": [
+    {
+      "flightId": "FD-001",
+      "phase": "ENROUTE",
+      "aircraft": { "tailNumber": "N731HC", "type": "BELL412" },
+      "position": {
+        "lat": 40.7115,
+        "lon": -111.9322,
+        "altitudeMsl": 5200,
+        "trueHeading": 187,
+        "speedKts": 110,
+        "timestamp": "2026-04-26T17:13:01Z"
+      }
+    },
+    {
+      "flightId": "FD-002",
+      "phase": "DESCENT",
+      "aircraft": { "tailNumber": "N512HC", "type": "B407" },
+      "position": {
+        "lat": 40.5588,
+        "lon": -111.6442,
+        "altitudeMsl": 5060,
+        "trueHeading": 92,
+        "speedKts": 105,
+        "timestamp": "2026-04-26T17:13:08Z"
+      }
+    }
+  ]
+}

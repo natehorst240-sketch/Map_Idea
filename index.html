@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Asset Tracker — 3D Cesium Demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="stylesheet" href="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Widgets/widgets.css" />
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Cesium.js"></script>
+
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        background: #0a0a0a;
+        color: #eee;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      }
+      #app {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        grid-template-rows: 56px 1fr;
+        height: 100vh;
+      }
+      header {
+        grid-column: 1 / -1;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0 16px;
+        background: #181818;
+        border-bottom: 1px solid #2a2a2a;
+      }
+      header h1 {
+        font-size: 16px;
+        margin: 0;
+        font-weight: 600;
+      }
+      .source-badges {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .badge {
+        font-size: 11px;
+        padding: 4px 10px;
+        border: 1.5px solid #555;
+        border-radius: 12px;
+        background: transparent;
+        color: #ddd;
+        cursor: pointer;
+        font-family: inherit;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .badge.off {
+        opacity: 0.55;
+      }
+      aside {
+        background: #131313;
+        border-right: 1px solid #2a2a2a;
+        overflow-y: auto;
+      }
+      .sidebar-header {
+        padding: 12px 16px;
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        border-bottom: 1px solid #2a2a2a;
+      }
+      .sidebar-header h2 {
+        margin: 0;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #aaa;
+      }
+      .sidebar-count {
+        font-size: 12px;
+        color: #888;
+      }
+      .asset-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .asset-row {
+        padding: 10px 16px;
+        border-bottom: 1px solid #1f1f1f;
+        cursor: pointer;
+      }
+      .asset-row:hover {
+        background: #1c1c1c;
+      }
+      .asset-label {
+        font-weight: 600;
+      }
+      .asset-meta {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+        color: #888;
+        margin-top: 2px;
+      }
+      .asset-source {
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      #cesiumContainer {
+        position: relative;
+      }
+      #cesiumContainer .cesium-viewer {
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <header>
+        <h1>Asset Tracker — 3D Cesium</h1>
+        <div id="badges"></div>
+      </header>
+      <aside id="sidebar"></aside>
+      <div id="cesiumContainer"></div>
+    </div>
+
+    <script type="module">
+      import { config } from './config.js';
+      import { buildRegistry } from './src/registry.js';
+      import { adsbAdapter } from './src/adapters/adsb.js';
+      import { trootraxAdapter } from './src/adapters/trootrax.js';
+      import { flightdocsAdapter } from './src/adapters/flightdocs.js';
+      import { customAdapter } from './src/adapters/custom.js';
+      import { createMap } from './src/map/cesium-map.js';
+      import { EntityStore } from './src/map/cesium-entities.js';
+      import { CameraController } from './src/map/cesium-camera.js';
+      import { Sidebar } from './src/ui/sidebar.js';
+      import { SourceBadges } from './src/ui/badges.js';
+
+      const registry = buildRegistry({
+        adapters: [adsbAdapter, trootraxAdapter, flightdocsAdapter, customAdapter],
+        colors: config.sourceColors,
+      });
+
+      const viewer = createMap('cesiumContainer');
+      const store = new EntityStore(viewer, registry);
+      const camera = new CameraController(viewer, store);
+      const sidebar = new Sidebar(document.getElementById('sidebar'), {
+        onSelect: (id) => camera.selectAsset(id),
+      });
+      const badges = new SourceBadges(document.getElementById('badges'), registry, {
+        onToggle: (source, visible) => store.setSourceVisible(source, visible),
+      });
+
+      // Seed demo data — the four existing adapters, exercised end-to-end.
+      // TrooTrax helicopters at realistic Wasatch Range altitudes (~4,750–5,320 ft MSL).
+      const seedTrootrax = {
+        feed: 'trootrax',
+        assets: [
+          { tailNumber: 'N251HC', latitude: 40.6125, longitude: -111.5582, altitudeFeet: 4750, headingDeg: 305, groundSpeedKts: 95,  lastReportUtc: nowIso() },
+          { tailNumber: 'N512HC', latitude: 40.5588, longitude: -111.6442, altitudeFeet: 5180, headingDeg: 92,  groundSpeedKts: 110, lastReportUtc: nowIso() },
+          { tailNumber: 'N731HC', latitude: 40.7115, longitude: -111.9322, altitudeFeet: 5320, headingDeg: 187, groundSpeedKts: 120, lastReportUtc: nowIso() },
+        ],
+      };
+
+      const seedAdsb = {
+        now: Date.now() / 1000,
+        messages: 1,
+        aircraft: [
+          { hex: 'a1b2c3', flight: 'DAL123  ', lat: 40.7126, lon: -111.9342, alt_baro: 35000, alt_geom: 35150, gs: 420, track: 273, seen_pos: 0.4, seen: 0.1 },
+          { hex: 'a99001', flight: 'SWA422  ', lat: 40.45, lon: -112.05, alt_baro: 28000, alt_geom: 28080, gs: 380, track: 95, seen_pos: 0.2, seen: 0.1 },
+        ],
+      };
+
+      const seedFlightdocs = {
+        flights: [
+          {
+            flightId: 'FD-001',
+            phase: 'ENROUTE',
+            aircraft: { tailNumber: 'N42FD', type: 'CL35' },
+            position: { lat: 40.78, lon: -111.85, altitudeMsl: 18500, trueHeading: 220, speedKts: 380, timestamp: nowIso() },
+          },
+        ],
+      };
+
+      const seedCustom = {
+        source: 'custom',
+        points: [
+          { id: 'GROUND-1', name: 'Recovery Truck', lat: 40.65, lon: -111.7, alt: 4800, hdg: 45, spd: 35, ts: Date.now() / 1000 },
+        ],
+      };
+
+      const all = [
+        ...registry.parse(seedTrootrax),
+        ...registry.parse(seedAdsb),
+        ...registry.parse(seedFlightdocs),
+        ...registry.parse(seedCustom),
+      ];
+
+      store.updateMapPositions(all);
+      sidebar.render(store.all());
+      badges.render(store.countBySource());
+
+      // Click on a Cesium entity → highlight in sidebar.
+      viewer.selectedEntityChanged.addEventListener((entity) => {
+        if (!entity) return;
+        const id = entity.id?.replace(/^asset-/, '');
+        if (!id) return;
+        document.querySelectorAll('.asset-row').forEach((row) => {
+          row.classList.toggle('selected', row.dataset.id === id);
+        });
+      });
+
+      function nowIso() {
+        return new Date().toISOString();
+      }
+    </script>
+  </body>
+</html>
