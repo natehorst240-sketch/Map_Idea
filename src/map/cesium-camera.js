@@ -32,8 +32,16 @@ export class CameraController {
     const entity = this.store.byId.get(id);
     if (!entity) return false;
     this.viewer.selectedEntity = entity;
-    const p = entity.__lastPosition;
-    this.panTo(p.lat, p.lon, p.altitude);
+    // viewer.flyTo with a HeadingPitchRange offset centers the entity in the
+    // viewport — unlike a raw camera.flyTo, which only positions the camera.
+    this.viewer.flyTo(entity, {
+      duration: 1.2,
+      offset: new Cesium.HeadingPitchRange(
+        0,
+        Cesium.Math.toRadians(-45),
+        12000, // metres of distance from entity
+      ),
+    });
     return true;
   }
 
