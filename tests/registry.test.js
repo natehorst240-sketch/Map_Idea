@@ -5,7 +5,6 @@ import { dirname, resolve } from 'node:path';
 import { PositionPluginRegistry, buildRegistry } from '../src/registry.js';
 import { adsbAdapter } from '../src/adapters/adsb.js';
 import { trootraxAdapter } from '../src/adapters/trootrax.js';
-import { flightdocsAdapter } from '../src/adapters/flightdocs.js';
 import { customAdapter } from '../src/adapters/custom.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -22,12 +21,11 @@ describe('PositionPluginRegistry', () => {
 
   test('routes payloads to the first matching adapter', () => {
     const reg = buildRegistry({
-      adapters: [adsbAdapter, trootraxAdapter, flightdocsAdapter, customAdapter],
+      adapters: [adsbAdapter, trootraxAdapter, customAdapter],
       colors: { adsb: '#1f77b4' },
     });
     expect(reg.parse(fx('adsb'))).toHaveLength(2);
     expect(reg.parse(fx('trootrax'))).toHaveLength(3);
-    expect(reg.parse(fx('flightdocs'))).toHaveLength(2);
     expect(reg.parse(fx('custom'))).toHaveLength(2);
   });
 

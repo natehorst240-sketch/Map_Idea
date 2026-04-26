@@ -18,7 +18,6 @@ export const config = {
   sourceColors: {
     adsb: '#1f77b4',
     trootrax: '#d62728',
-    flightdocs: '#2ca02c',
     custom: '#9467bd',
     nmea: '#ff7f0e',
     traccar: '#17becf',

@@ -131,7 +131,6 @@
       import { buildRegistry } from './src/registry.js';
       import { adsbAdapter } from './src/adapters/adsb.js';
       import { trootraxAdapter } from './src/adapters/trootrax.js';
-      import { flightdocsAdapter } from './src/adapters/flightdocs.js';
       import { customAdapter } from './src/adapters/custom.js';
       import { createMap } from './src/map/cesium-map.js';
       import { EntityStore } from './src/map/cesium-entities.js';
@@ -140,7 +139,7 @@
       import { SourceBadges } from './src/ui/badges.js';
 
       const registry = buildRegistry({
-        adapters: [adsbAdapter, trootraxAdapter, flightdocsAdapter, customAdapter],
+        adapters: [adsbAdapter, trootraxAdapter, customAdapter],
         colors: config.sourceColors,
       });
 
@@ -174,17 +173,6 @@
         ],
       };
 
-      const seedFlightdocs = {
-        flights: [
-          {
-            flightId: 'FD-001',
-            phase: 'ENROUTE',
-            aircraft: { tailNumber: 'N42FD', type: 'CL35' },
-            position: { lat: 40.78, lon: -111.85, altitudeMsl: 18500, trueHeading: 220, speedKts: 380, timestamp: nowIso() },
-          },
-        ],
-      };
-
       const seedCustom = {
         source: 'custom',
         points: [
@@ -195,7 +183,6 @@
       const all = [
         ...registry.parse(seedTrootrax),
         ...registry.parse(seedAdsb),
-        ...registry.parse(seedFlightdocs),
         ...registry.parse(seedCustom),
       ];
 

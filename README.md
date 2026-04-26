@@ -35,7 +35,7 @@ Open http://localhost:8080.
 
 You should see the Wasatch Range with three TrooTrax helicopters
 (N251HC / N512HC / N731HC) at ~4,750–5,320 ft MSL, plus an ADS-B jet
-at FL350 and a Flightdocs aircraft at 18,500 ft.
+at FL350 and a ground recovery truck.
 
 ## Architecture
 
@@ -63,7 +63,6 @@ add a new source.
 |------------|-------------------------------|------------------------------------|
 | ADS-B      | `src/adapters/adsb.js`        | dump1090-fa `aircraft.json`        |
 | TrooTrax   | `src/adapters/trootrax.js`    | SkyRouter export envelope          |
-| Flightdocs | `src/adapters/flightdocs.js`  | Veryon Tracking flights export     |
 | Custom     | `src/adapters/custom.js`      | Hand-authored / one-off feeds      |
 
 Future sprints add NMEA, Traccar, APRS, Samsara, AIS, Garmin inReach,
