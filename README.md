@@ -57,16 +57,32 @@ raw data ──▶ PositionPluginRegistry ──▶ normalized positions ──�
 See [docs/adding-an-adapter.md](docs/adding-an-adapter.md) for how to
 add a new source.
 
-## Adapters in this sprint
+## Adapters
 
 | Source     | File                          | Notes                              |
 |------------|-------------------------------|------------------------------------|
 | ADS-B      | `src/adapters/adsb.js`        | dump1090-fa `aircraft.json`        |
 | TrooTrax   | `src/adapters/trootrax.js`    | SkyRouter export envelope          |
+| NMEA 0183  | `src/adapters/nmea.js`        | $GPGGA + $GPRMC, GLONASS prefixes  |
+| Traccar    | `src/adapters/traccar.js`     | REST `/api/positions` + WebSocket  |
 | Custom     | `src/adapters/custom.js`      | Hand-authored / one-off feeds      |
 
-Future sprints add NMEA, Traccar, APRS, Samsara, AIS, Garmin inReach,
-MQTT, and GeoJSON. See `SPRINT_PLAN` in the project doc.
+Future sprints add APRS, Samsara, AIS, Garmin inReach, MQTT, and GeoJSON.
+
+## 3D map features
+
+- World Terrain + Bing imagery from Cesium ion (free tier).
+- Per-source colour-coded markers with heading arrows.
+- Trail history — ring buffer of the last 10 fixes per asset, drawn as a
+  faded polyline; toggleable from the header.
+- Stale-asset indicator: positions older than `staleThresholdSeconds`
+  (default 5 min) shift toward grey with reduced opacity.
+- Altitude callout: when zoomed in below ~500 km camera height, each
+  marker label gains a second line with the altitude in feet.
+- Sidebar NMEA paste panel — parse and render raw $GPGGA + $GPRMC
+  sentences live, useful for testing the NMEA adapter without hardware.
+- Camera flyTo on row click; track-mode follow available via the
+  `CameraController.follow(id)` API.
 
 ## Schema
 

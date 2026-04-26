@@ -114,6 +114,55 @@
       #cesiumContainer .cesium-viewer {
         height: 100%;
       }
+      .header-controls {
+        margin-left: auto;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .toggle-btn {
+        font-size: 11px;
+        padding: 4px 10px;
+        border: 1px solid #555;
+        border-radius: 4px;
+        background: transparent;
+        color: #ddd;
+        cursor: pointer;
+        font-family: inherit;
+      }
+      .toggle-btn.on {
+        background: #2c4a7a;
+        border-color: #4a7ab0;
+        color: #fff;
+      }
+      .nmea-panel {
+        border-top: 1px solid #2a2a2a;
+        padding: 12px 16px;
+      }
+      .nmea-panel h3 {
+        margin: 0 0 6px;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #aaa;
+      }
+      .nmea-panel textarea {
+        width: 100%;
+        min-height: 80px;
+        background: #0c0c0c;
+        color: #ddd;
+        border: 1px solid #2a2a2a;
+        font-family: ui-monospace, Menlo, Consolas, monospace;
+        font-size: 11px;
+        padding: 6px;
+        resize: vertical;
+        box-sizing: border-box;
+      }
+      .nmea-panel .nmea-status {
+        font-size: 11px;
+        color: #888;
+        margin-top: 4px;
+      }
     </style>
   </head>
   <body>
@@ -121,8 +170,18 @@
       <header>
         <h1>Asset Tracker — 3D Cesium</h1>
         <div id="badges"></div>
+        <div class="header-controls">
+          <button id="trailsToggle" class="toggle-btn on" type="button">Trails</button>
+        </div>
       </header>
-      <aside id="sidebar"></aside>
+      <aside id="sidebar">
+        <div id="sidebarMain"></div>
+        <div class="nmea-panel">
+          <h3>NMEA paste — live parse</h3>
+          <textarea id="nmeaInput" placeholder="$GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47&#10;$GPRMC,123519,A,4807.038,N,01131.000,E,022.4,084.4,230394,003.1,W*6A"></textarea>
+          <div class="nmea-status" id="nmeaStatus">Paste GGA + RMC sentences to add a live asset.</div>
+        </div>
+      </aside>
       <div id="cesiumContainer"></div>
     </div>
 
@@ -132,6 +191,8 @@
       import { adsbAdapter } from './src/adapters/adsb.js';
       import { trootraxAdapter } from './src/adapters/trootrax.js';
       import { customAdapter } from './src/adapters/custom.js';
+      import { nmeaAdapter } from './src/adapters/nmea.js';
+      import { traccarAdapter } from './src/adapters/traccar.js';
       import { createMap } from './src/map/cesium-map.js';
       import { EntityStore } from './src/map/cesium-entities.js';
       import { CameraController } from './src/map/cesium-camera.js';
@@ -139,14 +200,14 @@
       import { SourceBadges } from './src/ui/badges.js';
 
       const registry = buildRegistry({
-        adapters: [adsbAdapter, trootraxAdapter, customAdapter],
+        adapters: [adsbAdapter, trootraxAdapter, traccarAdapter, nmeaAdapter, customAdapter],
         colors: config.sourceColors,
       });
 
       const viewer = createMap('cesiumContainer');
       const store = new EntityStore(viewer, registry);
       const camera = new CameraController(viewer, store);
-      const sidebar = new Sidebar(document.getElementById('sidebar'), {
+      const sidebar = new Sidebar(document.getElementById('sidebarMain'), {
         onSelect: (id) => camera.selectAsset(id),
       });
       const badges = new SourceBadges(document.getElementById('badges'), registry, {
@@ -180,10 +241,17 @@
         ],
       };
 
+      // Seed Traccar — two ground vehicles via REST positions array.
+      const seedTraccar = [
+        { deviceId: 12, deviceName: 'Truck 12', latitude: 40.62, longitude: -111.8, altitude: 1480, speed: 28, course: 90,  fixTime: nowIso(), valid: true, attributes: { ignition: true, battery: 87 } },
+        { deviceId: 13, deviceName: 'Sedan 13', latitude: 40.59, longitude: -111.78, altitude: 1455, speed: 0,  course: 0,   fixTime: nowIso(), valid: true, attributes: { ignition: false, battery: 92 } },
+      ];
+
       const all = [
         ...registry.parse(seedTrootrax),
         ...registry.parse(seedAdsb),
         ...registry.parse(seedCustom),
+        ...registry.parse(seedTraccar),
       ];
 
       store.updateMapPositions(all);
@@ -198,6 +266,34 @@
         document.querySelectorAll('.asset-row').forEach((row) => {
           row.classList.toggle('selected', row.dataset.id === id);
         });
+      });
+
+      // Trails toggle.
+      const trailsBtn = document.getElementById('trailsToggle');
+      trailsBtn.addEventListener('click', () => {
+        const on = trailsBtn.classList.toggle('on');
+        store.setTrailsVisible(on);
+      });
+
+      // NMEA paste panel — re-parse on every keystroke.
+      const nmeaInput = document.getElementById('nmeaInput');
+      const nmeaStatus = document.getElementById('nmeaStatus');
+      nmeaInput.addEventListener('input', () => {
+        nmeaAdapter.reset();
+        const positions = registry.parse({
+          source: 'nmea',
+          deviceId: 'paste-demo',
+          sentences: nmeaInput.value,
+        });
+        if (positions.length === 0) {
+          nmeaStatus.textContent = 'Waiting for a complete GGA + RMC pair…';
+          return;
+        }
+        store.updateMapPositions(positions);
+        sidebar.render(store.all());
+        badges.render(store.countBySource());
+        const last = positions[positions.length - 1];
+        nmeaStatus.textContent = `Live: ${last.lat.toFixed(4)}, ${last.lon.toFixed(4)}${last.altitude !== null ? ` @ ${Math.round(last.altitude)} ft` : ''}.`;
       });
 
       function nowIso() {

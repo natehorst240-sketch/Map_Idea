@@ -1,0 +1,22 @@
+{
+  "positions": [
+    {
+      "id": 9001,
+      "deviceId": 21,
+      "deviceName": "Asset-21",
+      "protocol": "queclink",
+      "fixTime": "2026-04-26T17:14:01.000+00:00",
+      "latitude": 40.7115,
+      "longitude": -111.9322,
+      "altitude": 1605,
+      "speed": 28.5,
+      "course": 192,
+      "valid": true,
+      "attributes": {
+        "ignition": true,
+        "battery": 76,
+        "odometer": 48210
+      }
+    }
+  ]
+}
