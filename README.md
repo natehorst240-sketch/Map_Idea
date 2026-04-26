@@ -59,15 +59,26 @@ add a new source.
 
 ## Adapters
 
-| Source     | File                          | Notes                              |
-|------------|-------------------------------|------------------------------------|
-| ADS-B      | `src/adapters/adsb.js`        | dump1090-fa `aircraft.json`        |
-| TrooTrax   | `src/adapters/trootrax.js`    | SkyRouter export envelope          |
-| NMEA 0183  | `src/adapters/nmea.js`        | $GPGGA + $GPRMC, GLONASS prefixes  |
-| Traccar    | `src/adapters/traccar.js`     | REST `/api/positions` + WebSocket  |
-| Custom     | `src/adapters/custom.js`      | Hand-authored / one-off feeds      |
+| Source     | File                          | Notes                                       |
+|------------|-------------------------------|---------------------------------------------|
+| ADS-B      | `src/adapters/adsb.js`        | dump1090-fa `aircraft.json`                 |
+| TrooTrax   | `src/adapters/trootrax.js`    | SkyRouter export envelope                   |
+| NMEA 0183  | `src/adapters/nmea.js`        | $GPGGA + $GPRMC, GLONASS prefixes           |
+| Traccar    | `src/adapters/traccar.js`     | REST `/api/positions` + WebSocket           |
+| APRS       | `src/adapters/aprs.js`        | aprs.fi REST + raw APRS-IS uncompressed pos |
+| Samsara    | `src/adapters/samsara.js`     | Fleet snapshot + cursor-based live feed     |
+| Custom     | `src/adapters/custom.js`      | Hand-authored / one-off feeds               |
 
-Future sprints add APRS, Samsara, AIS, Garmin inReach, MQTT, and GeoJSON.
+Future sprints add AIS, Garmin inReach, MQTT, and GeoJSON.
+
+## Polling and live feeds
+
+- `registry.poll(fetchFn, intervalMs, onPositions)` — generic interval polling
+  that routes through the registry. Returns a stop handle.
+- `connectTraccarWebSocket(url, onPositions)` — Traccar `/api/socket` with
+  exponential backoff reconnect.
+- `startSamsaraFeed(fetchFeed, onPositions)` — cursor-paginated Samsara
+  vehicle feed; advances `endCursor` automatically.
 
 ## 3D map features
 
@@ -79,6 +90,11 @@ Future sprints add APRS, Samsara, AIS, Garmin inReach, MQTT, and GeoJSON.
   (default 5 min) shift toward grey with reduced opacity.
 - Altitude callout: when zoomed in below ~500 km camera height, each
   marker label gains a second line with the altitude in feet.
+- Terrain-follow mode: ground sources (`traccar`, `samsara`, `custom`)
+  default to `CLAMP_TO_GROUND`; aviation sources stay at MSL altitude.
+  Toggle from the header.
+- Sidebar search filter — type to narrow the asset list by id or label.
+- Sidebar export — download all current positions as GeoJSON or CSV.
 - Sidebar NMEA paste panel — parse and render raw $GPGGA + $GPRMC
   sentences live, useful for testing the NMEA adapter without hardware.
 - Camera flyTo on row click; track-mode follow available via the

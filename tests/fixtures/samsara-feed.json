@@ -1,0 +1,28 @@
+{
+  "data": [
+    {
+      "id": "281474976737697",
+      "name": "F-150 — Truck 7",
+      "locations": [
+        {
+          "latitude": 40.6126,
+          "longitude": -111.558,
+          "headingDegrees": 88,
+          "speedMilesPerHour": 42.0,
+          "time": "2026-04-26T17:12:35Z"
+        },
+        {
+          "latitude": 40.6127,
+          "longitude": -111.5578,
+          "headingDegrees": 89,
+          "speedMilesPerHour": 42.5,
+          "time": "2026-04-26T17:12:40Z"
+        }
+      ]
+    }
+  ],
+  "pagination": {
+    "endCursor": "MTcxNDE1ODE5MA==",
+    "hasNextPage": false
+  }
+}

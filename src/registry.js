@@ -63,6 +63,31 @@ export class PositionPluginRegistry {
   list() {
     return this.adapters.map((a) => a.name);
   }
+
+  // Live polling: invoke fetchFn at a fixed cadence, route the result through
+  // parse(), and hand normalized positions to onPositions. Returns a stop
+  // handle. fetchFn may return either raw data or a Promise of raw data.
+  // Errors are logged but never break the timer.
+  poll(fetchFn, intervalMs, onPositions) {
+    let stopped = false;
+    const tick = async () => {
+      if (stopped) return;
+      try {
+        const raw = await fetchFn();
+        const positions = this.parse(raw);
+        if (positions.length) onPositions(positions);
+      } catch (err) {
+        console.warn(`[registry.poll] fetch failed: ${err.message}`);
+      }
+      if (!stopped) setTimeout(tick, intervalMs);
+    };
+    setTimeout(tick, 0);
+    return {
+      stop() {
+        stopped = true;
+      },
+    };
+  }
 }
 
 // Convenience: build a registry with a stock set of adapters.

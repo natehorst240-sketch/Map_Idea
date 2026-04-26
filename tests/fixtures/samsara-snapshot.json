@@ -1,0 +1,38 @@
+{
+  "data": [
+    {
+      "id": "281474976737697",
+      "name": "F-150 — Truck 7",
+      "vin": "1FTFW1ET5DFC10312",
+      "make": "Ford",
+      "model": "F-150",
+      "tags": [{ "id": "1", "name": "Field Ops" }],
+      "location": {
+        "latitude": 40.6125,
+        "longitude": -111.5582,
+        "headingDegrees": 87,
+        "speedMilesPerHour": 41.5,
+        "time": "2026-04-26T17:12:30Z"
+      }
+    },
+    {
+      "id": "281474976737698",
+      "name": "Sprinter Van 4",
+      "vin": "WD3PE7CD7K3567788",
+      "make": "Mercedes-Benz",
+      "model": "Sprinter",
+      "tags": [],
+      "location": {
+        "latitude": 40.5588,
+        "longitude": -111.6442,
+        "headingDegrees": 0,
+        "speedMilesPerHour": 0,
+        "time": "2026-04-26T17:12:34Z"
+      }
+    }
+  ],
+  "pagination": {
+    "endCursor": "MTcxNDE1ODE1MA==",
+    "hasNextPage": false
+  }
+}

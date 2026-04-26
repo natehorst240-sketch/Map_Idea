@@ -10,6 +10,10 @@ import { config } from '../../config.js';
 const TRAIL_LENGTH = 10;
 const ALT_CALLOUT_HEIGHT_M = 500_000;
 
+// Sources whose markers default to clamping on the terrain surface (ground
+// vehicles). Aviation sources stay at MSL altitude.
+const DEFAULT_TERRAIN_FOLLOW = new Set(['traccar', 'samsara', 'custom']);
+
 export class EntityStore {
   constructor(viewer, registry) {
     this.viewer = viewer;
@@ -17,9 +21,27 @@ export class EntityStore {
     this.byId = new Map();
     this.trails = new Map(); // id -> { history: [{lat,lon,alt}], segments: [Entity] }
     this.hiddenSources = new Set();
+    this.terrainFollow = new Map(); // source -> bool
     this.trailsVisible = true;
     this.altCalloutVisible = false;
     this.installCameraHook();
+  }
+
+  isTerrainFollow(source) {
+    if (this.terrainFollow.has(source)) return this.terrainFollow.get(source);
+    return DEFAULT_TERRAIN_FOLLOW.has(source);
+  }
+
+  setTerrainFollow(source, follow) {
+    this.terrainFollow.set(source, follow);
+    const heightRef = follow ? Cesium.HeightReference.CLAMP_TO_GROUND : Cesium.HeightReference.NONE;
+    for (const entity of this.byId.values()) {
+      if (entity.__source !== source) continue;
+      entity.point.heightReference = heightRef;
+      const p = entity.__lastPosition;
+      const altMeters = follow ? 0 : typeof p.altitude === 'number' ? feetToMeters(p.altitude) : 0;
+      entity.position = Cesium.Cartesian3.fromDegrees(p.lon, p.lat, altMeters);
+    }
   }
 
   installCameraHook() {
@@ -46,7 +68,9 @@ export class EntityStore {
   }
 
   upsert(p) {
-    const altMeters = typeof p.altitude === 'number' ? feetToMeters(p.altitude) : 0;
+    const follow = this.isTerrainFollow(p.source);
+    const heightRef = follow ? Cesium.HeightReference.CLAMP_TO_GROUND : Cesium.HeightReference.NONE;
+    const altMeters = follow ? 0 : typeof p.altitude === 'number' ? feetToMeters(p.altitude) : 0;
     const pos = Cesium.Cartesian3.fromDegrees(p.lon, p.lat, altMeters);
     const baseColor = this.registry.color(p.source);
     const isStale = isPositionStale(p);
@@ -63,7 +87,7 @@ export class EntityStore {
           color: cesiumColor,
           outlineColor: Cesium.Color.WHITE,
           outlineWidth: 2,
-          heightReference: Cesium.HeightReference.NONE,
+          heightReference: heightRef,
         },
         label: {
           text: p.label,
