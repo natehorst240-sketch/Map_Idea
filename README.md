@@ -44,6 +44,46 @@ TrooTrax helicopters at ~4,750–5,320 ft MSL, ADS-B traffic at altitude,
 ground vehicles, an APRS mobile, a Samsara fleet vehicle, an inReach
 field operative, an AIS vessel, an MQTT IoT pod, and a GeoJSON waypoint.
 
+## TypeScript
+
+The package ships hand-written `.d.ts` declarations for every public
+export — no `@types/asset-tracker` needed. It works in `strict` mode out
+of the box.
+
+```ts
+import {
+  buildRegistry,
+  adsbAdapter,
+  makeMqttAdapter,
+  type NormalizedPosition,
+  type Adapter,
+} from 'asset-tracker';
+
+const registry = buildRegistry({ adapters: [adsbAdapter] });
+const positions: NormalizedPosition[] = registry.parse(rawDump1090Json);
+
+const myMqtt: Adapter = makeMqttAdapter({
+  idField: 'device_id',
+  latField: 'gps.lat',
+  lonField: 'gps.lon',
+});
+```
+
+`@types/cesium` is *not* a dependency. Cesium-typed values (the viewer
+returned by `createMap`, entities held by `EntityStore`) are typed as
+`unknown`. If you have `@types/cesium` installed, cast at the call site:
+
+```ts
+import type { Viewer } from 'cesium';
+import { createMap } from 'asset-tracker/map/cesium-map';
+
+const viewer = createMap('cesiumContainer') as unknown as Viewer;
+```
+
+Sub-path imports work too: `asset-tracker/adapters/nmea`,
+`asset-tracker/registry`, `asset-tracker/ui/export`, etc. Each has its
+own `.d.ts` so you don't pay for what you don't use.
+
 ## Quick start (npm)
 
 ```bash
