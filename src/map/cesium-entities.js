@@ -14,6 +14,26 @@ const ALT_CALLOUT_HEIGHT_M = 500_000;
 // vehicles). Aviation sources stay at MSL altitude.
 const DEFAULT_TERRAIN_FOLLOW = new Set(['traccar', 'samsara', 'custom']);
 
+function pickModelUrl(source) {
+  if (Array.isArray(config.aviationSources) && config.aviationSources.includes(source)) {
+    return config.aviationModelUrl || null;
+  }
+  return config.groundModelUrl || null;
+}
+
+// Convert a heading in true degrees to a Cesium HeadingPitchRoll quaternion
+// for orienting a glTF model at lat/lon/altMeters. The model's nose-forward
+// axis is aligned to local east; we offset by -90° so input heading 0° = north.
+function headingToOrientation(lat, lon, altMeters, headingDeg) {
+  const position = Cesium.Cartesian3.fromDegrees(lon, lat, altMeters);
+  const hpr = new Cesium.HeadingPitchRoll(
+    Cesium.Math.toRadians(headingDeg - 90),
+    0,
+    0,
+  );
+  return Cesium.Transforms.headingPitchRollQuaternion(position, hpr);
+}
+
 export class EntityStore {
   constructor(viewer, registry) {
     this.viewer = viewer;
@@ -76,19 +96,34 @@ export class EntityStore {
     const isStale = isPositionStale(p);
     const cesiumColor = renderColor(baseColor, isStale);
 
+    const modelUrl = pickModelUrl(p.source);
     let entity = this.byId.get(p.id);
     if (!entity) {
       entity = this.viewer.entities.add({
         id: `asset-${p.id}`,
         name: p.label,
         position: pos,
-        point: {
-          pixelSize: 12,
-          color: cesiumColor,
-          outlineColor: Cesium.Color.WHITE,
-          outlineWidth: 2,
-          heightReference: heightRef,
-        },
+        orientation:
+          modelUrl && typeof p.heading === 'number'
+            ? headingToOrientation(p.lat, p.lon, altMeters, p.heading)
+            : undefined,
+        point: modelUrl
+          ? undefined
+          : {
+              pixelSize: 12,
+              color: cesiumColor,
+              outlineColor: Cesium.Color.WHITE,
+              outlineWidth: 2,
+              heightReference: heightRef,
+            },
+        model: modelUrl
+          ? {
+              uri: modelUrl,
+              minimumPixelSize: 64,
+              maximumScale: 20000,
+              color: cesiumColor,
+            }
+          : undefined,
         label: {
           text: p.label,
           font: '12px sans-serif',
@@ -109,7 +144,13 @@ export class EntityStore {
       // Push the previous fix into the trail before overwriting.
       this.appendTrail(p.id, entity.__lastPosition);
       entity.position = pos;
-      entity.point.color = cesiumColor;
+      if (entity.point) entity.point.color = cesiumColor;
+      if (entity.model) {
+        entity.model.color = cesiumColor;
+        if (typeof p.heading === 'number') {
+          entity.orientation = headingToOrientation(p.lat, p.lon, altMeters, p.heading);
+        }
+      }
       entity.description = buildDescription(p);
     }
     entity.__lastPosition = p;
