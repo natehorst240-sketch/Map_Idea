@@ -1,16 +1,22 @@
 // sidebar.js — asset list + selection + search + export.
+//
+// Multiple Sidebar instances can co-exist on a page. Pass a `title` and a
+// `filter` predicate to scope each instance to one category (air assets,
+// vehicles, persons, etc.).
 
 export class Sidebar {
-  constructor(rootEl, { onSelect, onExport } = {}) {
+  constructor(rootEl, { title, onSelect, onExport, filter } = {}) {
     this.rootEl = rootEl;
+    this.title = title || 'Assets';
     this.onSelect = onSelect || (() => {});
     this.onExport = onExport || (() => {});
     this.filter = '';
+    this.filterFn = typeof filter === 'function' ? filter : null;
     this.lastPositions = [];
     this.rootEl.classList.add('asset-sidebar');
     this.rootEl.innerHTML = `
       <div class="sidebar-header">
-        <h2>Assets</h2>
+        <h2 data-title>${escapeHtml(this.title)}</h2>
         <span class="sidebar-count" data-count></span>
       </div>
       <div class="sidebar-toolbar">
@@ -30,8 +36,16 @@ export class Sidebar {
       this.draw();
     });
     for (const btn of this.rootEl.querySelectorAll('[data-export]')) {
-      btn.addEventListener('click', () => this.onExport(btn.dataset.export, this.lastPositions));
+      btn.addEventListener('click', () =>
+        this.onExport(btn.dataset.export, this.scopedPositions()),
+      );
     }
+  }
+
+  setTitle(title) {
+    this.title = title;
+    const el = this.rootEl.querySelector('[data-title]');
+    if (el) el.textContent = title;
   }
 
   render(positions) {
@@ -39,16 +53,22 @@ export class Sidebar {
     this.draw();
   }
 
+  /** Positions after the category-scope filter (used for export). */
+  scopedPositions() {
+    return this.filterFn ? this.lastPositions.filter(this.filterFn) : this.lastPositions;
+  }
+
   draw() {
+    const scoped = this.scopedPositions();
     const filtered = this.filter
-      ? this.lastPositions.filter(
+      ? scoped.filter(
           (p) =>
             p.id.toString().toLowerCase().includes(this.filter) ||
             p.label.toString().toLowerCase().includes(this.filter),
         )
-      : this.lastPositions;
+      : scoped;
     this.countEl.textContent = this.filter
-      ? `${filtered.length} / ${this.lastPositions.length}`
+      ? `${filtered.length} / ${scoped.length}`
       : `${filtered.length}`;
     this.listEl.innerHTML = '';
     const sorted = [...filtered].sort((a, b) => a.label.localeCompare(b.label));

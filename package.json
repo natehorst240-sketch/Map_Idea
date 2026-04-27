@@ -5,16 +5,33 @@
   "type": "module",
   "main": "src/index.js",
   "module": "src/index.js",
+  "types": "./src/index.d.ts",
   "exports": {
-    ".": "./src/index.js",
-    "./registry": "./src/registry.js",
-    "./adapters/*": "./src/adapters/*.js",
-    "./map/*": "./src/map/*.js",
-    "./ui/*": "./src/ui/*.js"
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.js"
+    },
+    "./registry": {
+      "types": "./src/registry.d.ts",
+      "default": "./src/registry.js"
+    },
+    "./adapters/*": {
+      "types": "./src/adapters/*.d.ts",
+      "default": "./src/adapters/*.js"
+    },
+    "./map/*": {
+      "types": "./src/map/*.d.ts",
+      "default": "./src/map/*.js"
+    },
+    "./ui/*": {
+      "types": "./src/ui/*.d.ts",
+      "default": "./src/ui/*.js"
+    }
   },
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "lint": "eslint \"src/**/*.js\" \"tests/**/*.js\"",
+    "typecheck": "tsc -p tests/typecheck/tsconfig.json",
     "format": "prettier --write \"src/**/*.{js,html}\" \"tests/**/*.js\"",
     "serve": "python3 -m http.server 8080"
   },
@@ -43,11 +60,13 @@
     "eslint": "^9.0.0",
     "globals": "^15.0.0",
     "jest": "^29.7.0",
-    "prettier": "^3.2.0"
+    "prettier": "^3.2.0",
+    "typescript": "^5.9.3"
   },
   "jest": {
     "testEnvironment": "node",
-    "transform": {}
+    "transform": {},
+    "testPathIgnorePatterns": ["/node_modules/", "/tests/typecheck/"]
   },
   "files": [
     "src",
