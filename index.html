@@ -20,126 +20,146 @@
       }
       #app {
         display: grid;
-        grid-template-columns: 320px 1fr;
-        grid-template-rows: 56px 1fr;
+        grid-template-rows: 56px 1fr 280px;
+        grid-template-columns: 1fr;
         height: 100vh;
       }
       header {
-        grid-column: 1 / -1;
         display: flex;
         align-items: center;
         gap: 12px;
         padding: 0 16px;
         background: #181818;
         border-bottom: 1px solid #2a2a2a;
+        position: relative; /* anchor dropdown panels to header */
       }
       header h1 {
         font-size: 16px;
         margin: 0;
         font-weight: 600;
       }
-      .source-badges {
-        display: flex;
-        gap: 6px;
-        flex-wrap: wrap;
+
+      /* Source dropdown — replaces the inline pill row. */
+      .source-dropdown {
+        position: relative;
       }
-      .badge {
-        font-size: 11px;
-        padding: 4px 10px;
-        border: 1.5px solid #555;
-        border-radius: 12px;
-        background: transparent;
+      .source-toggle {
+        font-size: 12px;
+        padding: 6px 12px;
+        border: 1px solid #2a2a2a;
+        border-radius: 4px;
+        background: #1a1a1a;
         color: #ddd;
         cursor: pointer;
         font-family: inherit;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .source-toggle:hover { background: #242424; }
+      .source-toggle.open { background: #2c4a7a; border-color: #4a7ab0; color: #fff; }
+      .source-summary { font-size: 11px; color: #aaa; }
+      .source-toggle.open .source-summary { color: #cfe1ff; }
+      .caret { font-size: 10px; opacity: 0.7; }
+      .source-panel {
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        z-index: 1000;
+        min-width: 240px;
+        background: #161616;
+        border: 1px solid #2a2a2a;
+        border-radius: 4px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+      }
+      .source-panel-header {
+        padding: 10px 14px;
+        font-size: 11px;
         text-transform: uppercase;
-        letter-spacing: 0.04em;
-      }
-      .badge.off {
-        opacity: 0.55;
-      }
-      aside {
-        background: #131313;
-        border-right: 1px solid #2a2a2a;
-        overflow-y: auto;
-      }
-      .sidebar-header {
-        padding: 12px 16px;
-        display: flex;
-        align-items: baseline;
-        justify-content: space-between;
+        letter-spacing: 0.05em;
+        color: #888;
         border-bottom: 1px solid #2a2a2a;
       }
-      .sidebar-header h2 {
-        margin: 0;
-        font-size: 13px;
+      .source-panel-list { margin: 0; padding: 6px 0; list-style: none; max-height: 320px; overflow-y: auto; }
+      .source-row {
+        display: grid;
+        grid-template-columns: 12px 1fr auto auto;
+        align-items: center;
+        gap: 10px;
+        padding: 6px 14px;
+        cursor: pointer;
+        font-size: 12px;
+      }
+      .source-row:hover { background: #1f1f1f; }
+      .source-row .swatch { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+      .source-row .source-name { text-transform: uppercase; letter-spacing: 0.04em; color: #ddd; }
+      .source-row .source-count { color: #888; font-size: 11px; }
+      .source-row .source-state { color: #5fa86a; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+      .source-row.off .source-state { color: #6e6e6e; }
+      .source-row.off { opacity: 0.65; }
+
+      /* NMEA paste popover — opens from a header button. */
+      .nmea-popover {
+        position: absolute;
+        top: calc(100% + 6px);
+        right: 16px;
+        z-index: 1000;
+        width: 360px;
+        background: #161616;
+        border: 1px solid #2a2a2a;
+        border-radius: 4px;
+        padding: 12px 14px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+      }
+      .nmea-popover h3 {
+        margin: 0 0 6px;
+        font-size: 11px;
         text-transform: uppercase;
         letter-spacing: 0.05em;
         color: #aaa;
       }
-      .sidebar-count {
-        font-size: 12px;
-        color: #888;
-      }
-      .sidebar-toolbar {
-        padding: 10px 16px;
-        border-bottom: 1px solid #2a2a2a;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
-      .asset-search {
+      .nmea-popover textarea {
+        width: 100%;
+        min-height: 90px;
         background: #0c0c0c;
         color: #ddd;
         border: 1px solid #2a2a2a;
-        padding: 6px 8px;
-        font-family: inherit;
-        font-size: 12px;
-      }
-      .sidebar-export {
-        display: flex;
-        gap: 6px;
-      }
-      .export-btn {
+        font-family: ui-monospace, Menlo, Consolas, monospace;
         font-size: 11px;
-        padding: 4px 10px;
-        border: 1px solid #444;
-        background: #1a1a1a;
-        color: #ddd;
-        cursor: pointer;
-        border-radius: 4px;
-        font-family: inherit;
+        padding: 6px;
+        resize: vertical;
+        box-sizing: border-box;
       }
-      .export-btn:hover {
-        background: #242424;
-      }
-      .asset-list {
-        margin: 0;
-        padding: 0;
-        list-style: none;
-      }
-      .asset-row {
-        padding: 10px 16px;
-        border-bottom: 1px solid #1f1f1f;
-        cursor: pointer;
-      }
-      .asset-row:hover {
-        background: #1c1c1c;
-      }
-      .asset-label {
-        font-weight: 600;
-      }
-      .asset-meta {
-        display: flex;
-        justify-content: space-between;
+      .nmea-popover .nmea-status {
         font-size: 11px;
         color: #888;
-        margin-top: 2px;
+        margin-top: 4px;
       }
-      .asset-source {
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
+
+      /* Header right-side controls cluster. */
+      .header-controls {
+        margin-left: auto;
+        display: flex;
+        gap: 8px;
+        align-items: center;
       }
+      .toggle-btn {
+        font-size: 11px;
+        padding: 4px 10px;
+        border: 1px solid #555;
+        border-radius: 4px;
+        background: transparent;
+        color: #ddd;
+        cursor: pointer;
+        font-family: inherit;
+      }
+      .toggle-btn.on {
+        background: #2c4a7a;
+        border-color: #4a7ab0;
+        color: #fff;
+      }
+
+      /* Map fills the middle row. */
       #cesiumContainer {
         position: relative;
         width: 100%;
@@ -165,54 +185,100 @@
         overflow: auto;
         display: none;
       }
-      .header-controls {
-        margin-left: auto;
-        display: flex;
-        gap: 8px;
-        align-items: center;
-      }
-      .toggle-btn {
-        font-size: 11px;
-        padding: 4px 10px;
-        border: 1px solid #555;
-        border-radius: 4px;
-        background: transparent;
-        color: #ddd;
-        cursor: pointer;
-        font-family: inherit;
-      }
-      .toggle-btn.on {
-        background: #2c4a7a;
-        border-color: #4a7ab0;
-        color: #fff;
-      }
-      .nmea-panel {
+
+      /* 3-column asset grid pinned to the bottom row. */
+      #assetGrid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        background: #131313;
         border-top: 1px solid #2a2a2a;
-        padding: 12px 16px;
+        overflow: hidden;
       }
-      .nmea-panel h3 {
-        margin: 0 0 6px;
-        font-size: 11px;
+      #assetGrid > .asset-sidebar {
+        overflow-y: auto;
+        border-right: 1px solid #1f1f1f;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+      #assetGrid > .asset-sidebar:last-child { border-right: none; }
+
+      .sidebar-header {
+        padding: 10px 14px;
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        border-bottom: 1px solid #2a2a2a;
+        flex-shrink: 0;
+      }
+      .sidebar-header h2 {
+        margin: 0;
+        font-size: 12px;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.06em;
         color: #aaa;
       }
-      .nmea-panel textarea {
-        width: 100%;
-        min-height: 80px;
+      .sidebar-count {
+        font-size: 11px;
+        color: #888;
+      }
+      .sidebar-toolbar {
+        padding: 8px 14px;
+        border-bottom: 1px solid #2a2a2a;
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        flex-shrink: 0;
+      }
+      .asset-search {
+        flex: 1;
         background: #0c0c0c;
         color: #ddd;
         border: 1px solid #2a2a2a;
-        font-family: ui-monospace, Menlo, Consolas, monospace;
+        padding: 5px 8px;
+        font-family: inherit;
         font-size: 11px;
-        padding: 6px;
-        resize: vertical;
-        box-sizing: border-box;
       }
-      .nmea-panel .nmea-status {
+      .sidebar-export {
+        display: flex;
+        gap: 4px;
+      }
+      .export-btn {
+        font-size: 10px;
+        padding: 4px 8px;
+        border: 1px solid #444;
+        background: #1a1a1a;
+        color: #ddd;
+        cursor: pointer;
+        border-radius: 3px;
+        font-family: inherit;
+      }
+      .export-btn:hover { background: #242424; }
+      .asset-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        flex: 1;
+        overflow-y: auto;
+      }
+      .asset-row {
+        padding: 8px 14px;
+        border-bottom: 1px solid #1f1f1f;
+        cursor: pointer;
+      }
+      .asset-row:hover { background: #1c1c1c; }
+      .asset-row.selected { background: #243854; }
+      .asset-label { font-weight: 600; font-size: 13px; }
+      .asset-meta {
+        display: flex;
+        justify-content: space-between;
         font-size: 11px;
         color: #888;
-        margin-top: 4px;
+        margin-top: 2px;
+      }
+      .asset-source {
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
       }
     </style>
   </head>
@@ -222,22 +288,25 @@
         <h1>Asset Tracker — 3D Cesium</h1>
         <div id="badges"></div>
         <div class="header-controls">
+          <button id="nmeaToggle" class="toggle-btn" type="button">NMEA paste</button>
           <button id="trailsToggle" class="toggle-btn on" type="button">Trails</button>
           <button id="terrainToggle" class="toggle-btn" type="button">Terrain-clamp ground</button>
           <button id="lightingToggle" class="toggle-btn" type="button">Sun lighting</button>
           <button id="followToggle" class="toggle-btn" type="button">Follow selected</button>
         </div>
-      </header>
-      <aside id="sidebar">
-        <div id="sidebarMain"></div>
-        <div class="nmea-panel">
+        <div id="nmeaPopover" class="nmea-popover" hidden>
           <h3>NMEA paste — live parse</h3>
           <textarea id="nmeaInput" placeholder="$GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47&#10;$GPRMC,123519,A,4807.038,N,01131.000,E,022.4,084.4,230394,003.1,W*6A"></textarea>
           <div class="nmea-status" id="nmeaStatus">Paste GGA + RMC sentences to add a live asset.</div>
         </div>
-      </aside>
+      </header>
       <div id="cesiumContainer">
         <div id="boot-error"></div>
+      </div>
+      <div id="assetGrid">
+        <div id="airAssets"></div>
+        <div id="vehicleAssets"></div>
+        <div id="personAssets"></div>
       </div>
     </div>
 
@@ -315,16 +384,46 @@
       const viewer = createMap('cesiumContainer');
       const store = new EntityStore(viewer, registry);
       const camera = new CameraController(viewer, store);
-      const sidebar = new Sidebar(document.getElementById('sidebarMain'), {
+
+      // Source → category lookup, with 'vehicle' as the catch-all default.
+      function categoryOf(source) {
+        return (config.categories && config.categories[source]) || 'vehicle';
+      }
+
+      function exportHandler(format, positions) {
+        if (format === 'geojson') {
+          downloadBlob(JSON.stringify(toGeoJSON(positions), null, 2), 'assets.geojson', 'application/geo+json');
+        } else {
+          downloadBlob(toCSV(positions), 'assets.csv', 'text/csv');
+        }
+      }
+
+      // Three sidebars, one per category, side-by-side at the bottom.
+      const airSidebar = new Sidebar(document.getElementById('airAssets'), {
+        title: 'Air assets',
+        filter: (p) => categoryOf(p.source) === 'air',
         onSelect: (id) => camera.selectAsset(id),
-        onExport: (format, positions) => {
-          if (format === 'geojson') {
-            downloadBlob(JSON.stringify(toGeoJSON(positions), null, 2), 'assets.geojson', 'application/geo+json');
-          } else {
-            downloadBlob(toCSV(positions), 'assets.csv', 'text/csv');
-          }
-        },
+        onExport: exportHandler,
       });
+      const vehicleSidebar = new Sidebar(document.getElementById('vehicleAssets'), {
+        title: 'Vehicles',
+        filter: (p) => categoryOf(p.source) === 'vehicle',
+        onSelect: (id) => camera.selectAsset(id),
+        onExport: exportHandler,
+      });
+      const personSidebar = new Sidebar(document.getElementById('personAssets'), {
+        title: 'Persons',
+        filter: (p) => categoryOf(p.source) === 'person',
+        onSelect: (id) => camera.selectAsset(id),
+        onExport: exportHandler,
+      });
+      const sidebars = [airSidebar, vehicleSidebar, personSidebar];
+
+      function refreshSidebars() {
+        const all = store.all();
+        for (const sb of sidebars) sb.render(all);
+      }
+
       const badges = new SourceBadges(document.getElementById('badges'), registry, {
         onToggle: (source, visible) => store.setSourceVisible(source, visible),
       });
@@ -436,15 +535,15 @@
       ];
 
       store.updateMapPositions(all);
-      sidebar.render(store.all());
+      refreshSidebars();
       badges.render(store.countBySource());
 
-      // Click on a Cesium entity → highlight in sidebar.
+      // Click on a Cesium entity → highlight in whichever sidebar holds it.
       viewer.selectedEntityChanged.addEventListener((entity) => {
         if (!entity) return;
         const id = entity.id?.replace(/^asset-/, '');
         if (!id) return;
-        document.querySelectorAll('.asset-row').forEach((row) => {
+        document.querySelectorAll('#assetGrid .asset-row').forEach((row) => {
           row.classList.toggle('selected', row.dataset.id === id);
         });
       });
@@ -517,12 +616,33 @@
         5000,
         (positions) => {
           store.updateMapPositions(positions);
-          sidebar.render(store.all());
+          refreshSidebars();
           badges.render(store.countBySource());
         },
       );
 
-      // NMEA paste panel — re-parse on every keystroke.
+      // NMEA paste popover — toggled from the header button. Closes on
+      // outside click or Escape.
+      const nmeaBtn = document.getElementById('nmeaToggle');
+      const nmeaPopover = document.getElementById('nmeaPopover');
+      function setNmeaOpen(open) {
+        nmeaPopover.hidden = !open;
+        nmeaBtn.classList.toggle('on', open);
+      }
+      nmeaBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        setNmeaOpen(nmeaPopover.hidden);
+      });
+      document.addEventListener('click', (e) => {
+        if (!nmeaPopover.hidden && !nmeaPopover.contains(e.target) && e.target !== nmeaBtn) {
+          setNmeaOpen(false);
+        }
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !nmeaPopover.hidden) setNmeaOpen(false);
+      });
+
+      // NMEA paste — re-parse on every keystroke.
       const nmeaInput = document.getElementById('nmeaInput');
       const nmeaStatus = document.getElementById('nmeaStatus');
       nmeaInput.addEventListener('input', () => {

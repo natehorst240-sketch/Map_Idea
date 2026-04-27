@@ -46,4 +46,21 @@ export const config = {
 
   // Sun lighting + atmospheric scattering. Visible at globe scale.
   enableSunLighting: false,
+
+  // Source → category mapping for the bottom asset grid (3 columns).
+  // Override per-deployment if your usage differs (e.g. an MQTT fleet of
+  // drones would map mqtt → 'air'). Sources not listed default to 'vehicle'.
+  categories: {
+    adsb: 'air',
+    trootrax: 'air',
+    nmea: 'person', // typically handheld GPS
+    traccar: 'vehicle',
+    samsara: 'vehicle',
+    aprs: 'person', // mobile ham operator
+    ais: 'vehicle', // vessels — vehicles in the maritime sense
+    inreach: 'person',
+    mqtt: 'vehicle',
+    geojson: 'vehicle',
+    custom: 'vehicle',
+  },
 };

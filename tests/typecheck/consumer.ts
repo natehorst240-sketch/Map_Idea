@@ -135,6 +135,32 @@ import { adsbAdapter as adsbViaSubpath } from '../../src/adapters/adsb.js';
 const adsbCheck: Adapter = adsbViaSubpath;
 void adsbCheck;
 
+// ----- new sidebar/badges options (title, filter, label) -----
+
+import { Sidebar } from '../../src/ui/sidebar.js';
+import { SourceBadges } from '../../src/ui/badges.js';
+
+declare const dummyEl: HTMLElement;
+declare const dummyRegistry: PositionPluginRegistry;
+
+const _airSidebar = new Sidebar(dummyEl, {
+  title: 'Air assets',
+  filter: (p: NormalizedPosition) => p.source === 'adsb' || p.source === 'trootrax',
+  onSelect: (id: string) => void id,
+});
+_airSidebar.setTitle('Aviation');
+void _airSidebar;
+
+const _badges = new SourceBadges(dummyEl, dummyRegistry, {
+  label: 'Tracked-by',
+  onToggle: (s: string, v: boolean) => {
+    void s;
+    void v;
+  },
+});
+_badges.setOpen(false);
+void _badges;
+
 // ----- negative checks via @ts-expect-error -----
 
 // @ts-expect-error — id is required.
