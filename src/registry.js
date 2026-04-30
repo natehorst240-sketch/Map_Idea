@@ -7,7 +7,7 @@
 // Normalized position schema:
 //   { id, lat, lon, altitude, heading, speed, timestamp, source, label, meta }
 // altitude is feet MSL (null if unavailable). Conversion to metres happens
-// only at the Cesium render boundary.
+// only at the renderer boundary.
 
 export class PositionPluginRegistry {
   constructor({ colors = {} } = {}) {

@@ -1,8 +1,8 @@
 // Public entry for npm consumers: import { ... } from 'asset-tracker'.
 //
-// The map layer (cesium-*) is also re-exported, but those modules expect a
-// global `Cesium` provided by the consumer's HTML — they're a thin wrapper,
-// not a Cesium re-package.
+// The map layer (./map/*) is also re-exported, but those modules expect
+// `maplibregl` and `deck` globals provided by the consumer's HTML —
+// they're a thin wrapper, not a renderer re-package.
 
 export { PositionPluginRegistry, buildRegistry } from './registry.js';
 
@@ -18,9 +18,9 @@ export { inreachAdapter } from './adapters/inreach.js';
 export { makeMqttAdapter } from './adapters/mqtt.js';
 export { geojsonAdapter } from './adapters/geojson.js';
 
-export { createMap, setSunLighting, feetToMeters } from './map/cesium-map.js';
-export { EntityStore } from './map/cesium-entities.js';
-export { CameraController } from './map/cesium-camera.js';
+export { createMap, setSunLighting, feetToMeters } from './map/map.js';
+export { EntityStore } from './map/entities.js';
+export { CameraController } from './map/camera.js';
 
 export { Sidebar } from './ui/sidebar.js';
 export { SourceBadges } from './ui/badges.js';

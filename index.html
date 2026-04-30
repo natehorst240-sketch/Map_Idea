@@ -2,11 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Asset Tracker — 3D Cesium Demo</title>
+    <title>Asset Tracker — 3D Globe Demo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <link rel="stylesheet" href="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Widgets/widgets.css" />
-    <script src="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Cesium.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.5.0/dist/maplibre-gl.css" />
+    <script src="https://unpkg.com/maplibre-gl@5.5.0/dist/maplibre-gl.js"></script>
+    <script src="https://unpkg.com/deck.gl@9.0.36/dist.min.js"></script>
 
     <style>
       html,
@@ -160,15 +161,14 @@
       }
 
       /* Map fills the middle row. */
-      #cesiumContainer {
+      #mapContainer {
         position: relative;
         width: 100%;
         height: 100%;
         min-height: 0;
       }
-      #cesiumContainer .cesium-viewer,
-      #cesiumContainer .cesium-widget,
-      #cesiumContainer .cesium-widget canvas {
+      #mapContainer .maplibregl-map,
+      #mapContainer canvas {
         width: 100%;
         height: 100%;
       }
@@ -285,7 +285,7 @@
   <body>
     <div id="app">
       <header>
-        <h1>Asset Tracker — 3D Cesium</h1>
+        <h1>Asset Tracker — 3D Globe</h1>
         <div id="badges"></div>
         <div class="header-controls">
           <button id="nmeaToggle" class="toggle-btn" type="button">NMEA paste</button>
@@ -300,7 +300,7 @@
           <div class="nmea-status" id="nmeaStatus">Paste GGA + RMC sentences to add a live asset.</div>
         </div>
       </header>
-      <div id="cesiumContainer">
+      <div id="mapContainer">
         <div id="boot-error"></div>
       </div>
       <div id="assetGrid">
@@ -339,9 +339,9 @@
       import { inreachAdapter } from './src/adapters/inreach.js';
       import { makeMqttAdapter } from './src/adapters/mqtt.js';
       import { geojsonAdapter } from './src/adapters/geojson.js';
-      import { createMap, setSunLighting } from './src/map/cesium-map.js';
-      import { EntityStore } from './src/map/cesium-entities.js';
-      import { CameraController } from './src/map/cesium-camera.js';
+      import { createMap, setSunLighting } from './src/map/map.js';
+      import { EntityStore } from './src/map/entities.js';
+      import { CameraController } from './src/map/camera.js';
       import { Sidebar } from './src/ui/sidebar.js';
       import { SourceBadges } from './src/ui/badges.js';
       import { toGeoJSON, toCSV, downloadBlob } from './src/ui/export.js';
@@ -381,9 +381,9 @@
         colors: config.sourceColors,
       });
 
-      const viewer = createMap('cesiumContainer');
-      const store = new EntityStore(viewer, registry);
-      const camera = new CameraController(viewer, store);
+      const map = createMap('mapContainer');
+      const store = new EntityStore(map, registry);
+      const camera = new CameraController(map, store);
 
       // Source → category lookup, with 'vehicle' as the catch-all default.
       function categoryOf(source) {
@@ -538,15 +538,16 @@
       refreshSidebars();
       badges.render(store.countBySource());
 
-      // Click on a Cesium entity → highlight in whichever sidebar holds it.
-      viewer.selectedEntityChanged.addEventListener((entity) => {
-        if (!entity) return;
-        const id = entity.id?.replace(/^asset-/, '');
-        if (!id) return;
+      // Marker clicks bubble up via EntityStore.setSelected (called from
+      // the layer's onClick handler). We mirror the highlight in the
+      // sidebar columns by listening through a render pass.
+      const _origSetSelected = store.setSelected.bind(store);
+      store.setSelected = (id) => {
+        _origSetSelected(id);
         document.querySelectorAll('#assetGrid .asset-row').forEach((row) => {
           row.classList.toggle('selected', row.dataset.id === id);
         });
-      });
+      };
 
       // Trails toggle.
       const trailsBtn = document.getElementById('trailsToggle');
@@ -571,20 +572,18 @@
       if (config.enableSunLighting) lightingBtn.classList.add('on');
       lightingBtn.addEventListener('click', () => {
         const on = lightingBtn.classList.toggle('on');
-        setSunLighting(viewer, on);
+        setSunLighting(map, on);
       });
 
       // Follow toggle — locks camera onto the currently-selected entity.
       // Press Escape (or click again) to release.
       const followBtn = document.getElementById('followToggle');
       followBtn.addEventListener('click', () => {
-        const sel = viewer.selectedEntity;
-        if (!sel) {
+        const id = store.selectedId;
+        if (!id) {
           followBtn.classList.remove('on');
           return;
         }
-        const id = sel.id?.replace(/^asset-/, '');
-        if (!id) return;
         const isFollowing = camera.toggleFollow(id);
         followBtn.classList.toggle('on', isFollowing);
       });

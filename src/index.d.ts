@@ -6,6 +6,8 @@ export type {
   BuildRegistryOptions,
   StopHandle,
   SamsaraFeedHandle,
+  MapInstance,
+  // Back-compat aliases — prefer MapInstance.
   CesiumViewer,
   CesiumEntity,
 } from './types.js';
@@ -33,9 +35,9 @@ export type {
 } from './adapters/mqtt.js';
 export { geojsonAdapter } from './adapters/geojson.js';
 
-export { createMap, setSunLighting, feetToMeters } from './map/cesium-map.js';
-export { EntityStore } from './map/cesium-entities.js';
-export { CameraController } from './map/cesium-camera.js';
+export { createMap, setSunLighting, feetToMeters } from './map/map.js';
+export { EntityStore } from './map/entities.js';
+export { CameraController } from './map/camera.js';
 
 export { Sidebar } from './ui/sidebar.js';
 export type { SidebarOptions, SidebarExportFormat } from './ui/sidebar.js';

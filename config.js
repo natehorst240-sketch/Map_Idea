@@ -1,10 +1,8 @@
 // Asset Tracker — runtime config.
 //
-// Replace CESIUM_ION_TOKEN with your free token from https://cesium.com/ion/tokens
-// then restrict the token to your deployment domains in the ion dashboard.
-//
-// For local dev you can copy this file to config.local.js (gitignored) and
-// import that instead — but the simplest path is to edit the placeholder below.
+// All renderer settings are MapLibre GL JS + deck.gl. No Cesium, no ion
+// token. Defaults point at free public tile sources so the demo runs
+// out of the box. Swap the URLs for a self-hosted NAS when ready.
 
 export const config = {
   // Free tier token. Without a token, Cesium falls back to a low-resolution
@@ -29,22 +27,24 @@ export const config = {
     geojson: '#637939',
   },
 
-  // Initial camera framing for the demo (Wasatch Range — TrooTrax helicopters).
+  // Initial camera framing (Wasatch Range — TrooTrax helicopters).
   initialView: {
     longitude: -111.6,
     latitude: 40.55,
-    height: 80000,
+    zoom: 8.5,
+    pitch: 55,
+    bearing: 0,
   },
 
   // Optional 3D models. If set, aviation sources render as a glTF model
-  // oriented by heading; otherwise the default point billboard is used.
-  // Drop a .glb (or .gltf) into a public path and reference it here.
-  // E.g. `./assets/models/helicopter.glb`. Set to null to disable.
+  // oriented by heading; otherwise the default icon billboard is used.
+  // Drop a .glb / .gltf into a public path and reference it here.
+  // Set to null to disable.
   aviationModelUrl: null,
   groundModelUrl: null,
   aviationSources: ['adsb', 'trootrax', 'nmea'],
 
-  // Sun lighting + atmospheric scattering. Visible at globe scale.
+  // Sun lighting. Toggleable from the header.
   enableSunLighting: false,
 
   // Source → category mapping for the bottom asset grid (3 columns).
@@ -53,11 +53,11 @@ export const config = {
   categories: {
     adsb: 'air',
     trootrax: 'air',
-    nmea: 'person', // typically handheld GPS
+    nmea: 'person',
     traccar: 'vehicle',
     samsara: 'vehicle',
-    aprs: 'person', // mobile ham operator
-    ais: 'vehicle', // vessels — vehicles in the maritime sense
+    aprs: 'person',
+    ais: 'vehicle',
     inreach: 'person',
     mqtt: 'vehicle',
     geojson: 'vehicle',
