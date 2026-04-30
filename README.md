@@ -1,11 +1,12 @@
 # Asset Tracker
 
-Plug-and-play asset tracking adapter library + 3D CesiumJS globe.
-Adapters normalize position data from any source; the map only ever
-sees one schema.
+Plug-and-play asset tracking adapter library + 3D MapLibre globe with
+deck.gl markers. Adapters normalize position data from any source; the
+map only ever sees one schema. **Zero tokens, zero vendor lock-in** —
+all tile sources are URL-configurable and default to free public hosts.
 
 ```
-raw data ──▶ PositionPluginRegistry ──▶ normalized positions ──▶ Cesium entities
+raw data ──▶ PositionPluginRegistry ──▶ normalized positions ──▶ deck.gl layers
               │                                                    │
               └─ adapter.canParse() + adapter.normalize()           └─ feet → metres only here
 ```
@@ -16,33 +17,28 @@ raw data ──▶ PositionPluginRegistry ──▶ normalized positions ──�
 git clone <this repo>
 cd Map_Idea
 npm install
+npm run serve     # python3 -m http.server 8080
 ```
 
-Get a free Cesium ion token at https://cesium.com/ion/tokens, then
-edit `config.js`:
+Open http://localhost:8080. No tokens, no signup. The defaults in
+`config.js` point at:
+- Mapzen Terrarium DEM tiles on AWS public S3 (terrain)
+- OpenStreetMap raster tiles (basemap imagery)
+
+When you self-host, edit `config.js`:
 
 ```js
 export const config = {
-  cesiumIonToken: 'paste-your-token-here',
+  terrainTileUrl: 'http://nas.local/terrain/{z}/{x}/{y}.png',
+  imageryTileUrl: 'http://nas.local/imagery/{z}/{x}/{y}.jpg',
   // ...
 };
 ```
 
-In the ion dashboard, **restrict the token to your deployment hosts**
-under *Allowed URLs* (see `docs/m365-deployment.md`). The token is
-visible to anyone reading the deployed bundle — Allowed URLs is the
-real security boundary.
-
-Serve `index.html`:
-
-```bash
-npm run serve   # python3 -m http.server 8080
-```
-
-Open http://localhost:8080. You should see the Wasatch Range with three
-TrooTrax helicopters at ~4,750–5,320 ft MSL, ADS-B traffic at altitude,
-ground vehicles, an APRS mobile, a Samsara fleet vehicle, an inReach
-field operative, an AIS vessel, an MQTT IoT pod, and a GeoJSON waypoint.
+You should see the Wasatch Range with three TrooTrax helicopters at
+9,500–12,500 ft MSL, ADS-B traffic at FL350, ground vehicles, an APRS
+mobile, a Samsara fleet vehicle, an inReach field operative, an AIS
+vessel, an MQTT IoT pod, and a GeoJSON waypoint.
 
 ## TypeScript
 
@@ -69,15 +65,16 @@ const myMqtt: Adapter = makeMqttAdapter({
 });
 ```
 
-`@types/cesium` is *not* a dependency. Cesium-typed values (the viewer
-returned by `createMap`, entities held by `EntityStore`) are typed as
-`unknown`. If you have `@types/cesium` installed, cast at the call site:
+`@types/maplibre-gl` is *not* a dependency. Renderer values (the map
+returned by `createMap`, the EntityStore's deck.gl handles) are typed
+as `MapInstance` (`unknown`). If you have `@types/maplibre-gl`
+installed, cast at the call site:
 
 ```ts
-import type { Viewer } from 'cesium';
-import { createMap } from 'asset-tracker/map/cesium-map';
+import type { Map as MapLibreMap } from 'maplibre-gl';
+import { createMap } from 'asset-tracker/map/map';
 
-const viewer = createMap('cesiumContainer') as unknown as Viewer;
+const map = createMap('mapContainer') as unknown as MapLibreMap;
 ```
 
 Sub-path imports work too: `asset-tracker/adapters/nmea`,
@@ -114,9 +111,15 @@ const positions = registry.parse(rawDump1090Json);
 // → normalized array of { id, lat, lon, altitude, heading, speed, timestamp, source, label, meta }
 ```
 
-If you're using the bundled CesiumJS map layer, the consumer page must
-load Cesium globally (the `Cesium` global). The `src/map/*` modules are
-thin wrappers, not a Cesium re-package.
+If you're using the bundled map layer, the consumer page must load
+MapLibre GL JS and deck.gl as globals (`maplibregl` and `deck`). The
+`src/map/*` modules are thin wrappers, not a renderer re-package:
+
+```html
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css" />
+<script src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/deck.gl@9/dist.min.js"></script>
+```
 
 ## Adapters
 
@@ -201,41 +204,57 @@ All adapters output:
 }
 ```
 
-Altitude in feet → metres (× 0.3048) happens *only* at the Cesium
-render boundary. Inside the schema and adapters, altitude is feet.
+Altitude in feet → metres (× 0.3048) happens *only* at the renderer
+boundary. Inside the schema and adapters, altitude is feet.
 
 ## 3D map features
 
-- World Terrain + Bing imagery from Cesium ion (free tier).
+- **MapLibre GL JS v5** globe projection with raster-DEM terrain
+  (Terrarium-encoded by default). No tokens, no vendor.
+- **deck.gl** layers for everything on top of the basemap: markers
+  (`ScatterplotLayer`), labels (`TextLayer`), heading arrows
+  (`LineLayer`), trail history (`PathLayer`).
 - Per-source colour-coded markers with heading arrows.
-- Trail history — ring buffer of the last 10 fixes per asset, drawn
-  as a faded polyline; toggleable from the header.
+- Trail history — ring buffer of the last 10 fixes per asset.
+  Toggleable from the header.
 - Stale-asset indicator: positions older than `staleThresholdSeconds`
   (default 5 min) shift toward grey with reduced opacity.
-- Altitude callout: when zoomed in below ~500 km camera height, each
-  marker label gains a second line with the altitude in feet.
-- Terrain-follow mode: ground sources (`traccar`, `samsara`, `custom`)
-  default to `CLAMP_TO_GROUND`; aviation sources stay at MSL.
-  Toggle from the header.
-- Sun lighting toggle — Cesium's day/night terminator with atmospheric
-  scattering.
-- Camera flyTo on row click; **Follow selected** locks the camera onto
-  the selected entity. Press Escape to release.
-- Optional 3D models for aviation sources — set `aviationModelUrl` in
-  `config.js` to a `.glb` / `.gltf` URL and matching aircraft will
-  render as a heading-oriented model.
+- Altitude callout: when zoomed in past z≈9.5, each marker label
+  gains a second line with the altitude in feet.
+- Terrain-follow mode: ground / map-data sources (`traccar`,
+  `samsara`, `custom`, `mqtt`, `geojson`, `aprs`) clamp to z=0;
+  aviation sources stay at MSL altitude. Toggle from the header.
+- All markers render with depth-test disabled — assets behind a
+  mountain still appear as a HUD-style overlay so they're never lost.
+- Sun lighting toggle — daylight sky vs flat dark dashboard backdrop.
+- Camera flyTo on row click; **Follow selected** locks the camera
+  onto the selected asset and tracks it as it moves. Press Escape
+  to release.
 - Sidebar search filter — type to narrow the asset list.
 - Sidebar export — download all current positions as GeoJSON or CSV.
-- Sidebar NMEA paste panel — parse and render raw $GPGGA + $GPRMC live.
+- Header NMEA paste popover — parse and render raw $GPGGA + $GPRMC live.
+
+### Tile sources
+
+Defaults are free public hosts; swap any URL in `config.js` for a
+self-hosted NAS:
+
+| Layer | Default | Notes |
+|-------|---------|-------|
+| Terrain | `https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png` | Mapzen Terrain RGB on AWS Public Datasets. Free, no auth, no rate limit. |
+| Imagery | `https://tile.openstreetmap.org/{z}/{x}/{y}.png` | OSM raster. Fine for dev/demo; respect OSM tile policy in production. |
 
 ## M365 deployment
 
 The map drops into Microsoft Teams as a Custom Tab and into SharePoint
-via the Embed web part. Step-by-step (manifest, sideload, ion token
-hardening, troubleshooting) lives in
-[docs/m365-deployment.md](docs/m365-deployment.md).
+via the Embed web part. Step-by-step (manifest, sideload, troubleshooting)
+lives in [docs/m365-deployment.md](docs/m365-deployment.md).
 
 A Teams app manifest template is in `m365/manifest.template.json`.
+
+> The original ion-token hardening notes in the deployment guide are
+> obsolete — there is no token to harden anymore. The remaining steps
+> (manifest, validDomains, SharePoint allowlist) are still accurate.
 
 ## Adding a new adapter
 

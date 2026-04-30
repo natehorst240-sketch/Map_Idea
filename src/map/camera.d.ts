@@ -1,5 +1,5 @@
-import type { CesiumViewer } from '../types.js';
-import type { EntityStore } from './cesium-entities.js';
+import type { MapInstance } from '../types.js';
+import type { EntityStore } from './entities.js';
 
 /**
  * Camera controls keyed off an EntityStore. `selectAsset(id)` flies the
@@ -7,15 +7,15 @@ import type { EntityStore } from './cesium-entities.js';
  * until `unfollow()` (or the user presses Escape).
  */
 export declare class CameraController {
-  constructor(viewer: CesiumViewer, store: EntityStore);
+  constructor(map: MapInstance, store: EntityStore);
 
   /** True if a follow is currently active. */
   followingId: string | null;
 
-  /** Fly the camera to a specific lat/lon at altitude (feet MSL). */
+  /** Fly the camera to a specific lat/lon. Altitude is informational only. */
   panTo(lat: number, lon: number, altitudeFt?: number | null): void;
 
-  /** Select the entity by id and frame it in the viewport. */
+  /** Select the entity by id, highlight it, and frame it in the viewport. */
   selectAsset(id: string): boolean;
 
   /** Lock the camera onto an entity for live tracking. */

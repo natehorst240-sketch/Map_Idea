@@ -8,7 +8,8 @@ export default [
       sourceType: 'module',
       globals: {
         ...globals.browser,
-        Cesium: 'readonly',
+        maplibregl: 'readonly',
+        deck: 'readonly',
       },
     },
     rules: {

@@ -12,7 +12,7 @@
  *   speed      — knots (null if unavailable)
  *   timestamp  — Unix epoch seconds UTC
  *
- * Conversion to metres for Cesium happens *only* at the render boundary.
+ * Conversion to metres happens *only* at the renderer boundary.
  */
 export interface NormalizedPosition {
   id: string;
@@ -62,10 +62,15 @@ export interface SamsaraFeedHandle extends StopHandle {
 }
 
 /**
- * Cesium types are intentionally opaque so this package stays zero-dep.
- * If you have `@types/cesium` installed you can cast at the call site:
- *   import type { Viewer } from 'cesium';
- *   const viewer = createMap('cesiumContainer') as unknown as Viewer;
+ * Renderer instance handle (currently a `maplibregl.Map`). Typed as
+ * `unknown` so this package stays free of `@types/maplibre-gl`. If you
+ * have those types installed you can cast at the call site:
+ *   import type { Map as MapLibreMap } from 'maplibre-gl';
+ *   const map = createMap('mapContainer') as unknown as MapLibreMap;
  */
-export type CesiumViewer = unknown;
+export type MapInstance = unknown;
+
+/** @deprecated alias kept for back-compat — use {@link MapInstance}. */
+export type CesiumViewer = MapInstance;
+/** @deprecated alias kept for back-compat — entities are now deck.gl objects. */
 export type CesiumEntity = unknown;

@@ -1,7 +1,7 @@
 {
   "name": "asset-tracker",
-  "version": "0.1.0",
-  "description": "Plug-and-play asset tracking adapter library + 3D CesiumJS map.",
+  "version": "0.2.0",
+  "description": "Plug-and-play asset tracking adapter library + 3D MapLibre + deck.gl map.",
   "type": "module",
   "main": "src/index.js",
   "module": "src/index.js",
@@ -37,7 +37,8 @@
   },
   "keywords": [
     "asset-tracking",
-    "cesium",
+    "maplibre",
+    "deck.gl",
     "gps",
     "ads-b",
     "ais",
