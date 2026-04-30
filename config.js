@@ -5,23 +5,9 @@
 // out of the box. Swap the URLs for a self-hosted NAS when ready.
 
 export const config = {
-  // Free, no-auth, production-tolerable defaults:
-  //   terrain — Mapzen Terrain RGB on AWS public S3 (Terrarium encoding).
-  //   imagery — OSM raster (fine for dev/demo; respect OSM tile policy
-  //             for production).
-  //
-  // Swap either to your own tile server when self-hosting:
-  //   terrainTileUrl: 'http://nas.local/terrain/{z}/{x}/{y}.png'
-  //   imageryTileUrl: 'http://nas.local/imagery/{z}/{x}/{y}.jpg'
-  terrainTileUrl: 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png',
-  terrainEncoding: 'terrarium',
-  terrainExaggeration: 1.4,
-  imageryTileUrl: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-  imageryAttribution:
-    '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-  terrainAttribution:
-    '<a href="https://github.com/tilezen/joerd/blob/master/docs/attribution.md">Mapzen / Tilezen</a> · ' +
-    'Mapbox-style RGB on AWS Public Datasets',
+  // Free tier token. Without a token, Cesium falls back to a low-resolution
+  // imagery layer and disables World Terrain.
+  cesiumIonToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJiYThkMDkzOC1kYjU4LTQ0ZmMtYmU0Ny1mZTY3YzllNjY4NTkiLCJpZCI6NDIzODcyLCJpYXQiOjE3NzcyMzI0Njh9.9joupijYceb10Cv37TbX7HioCcUV5eOgzh6cQUUIBXI',
 
   // Asset is rendered with reduced opacity if its timestamp is older than this.
   staleThresholdSeconds: 300,
