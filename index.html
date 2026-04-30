@@ -656,7 +656,7 @@
           return;
         }
         store.updateMapPositions(positions);
-        sidebar.render(store.all());
+        refreshSidebars();
         badges.render(store.countBySource());
         const last = positions[positions.length - 1];
         nmeaStatus.textContent = `Live: ${last.lat.toFixed(4)}, ${last.lon.toFixed(4)}${last.altitude !== null ? ` @ ${Math.round(last.altitude)} ft` : ''}.`;
